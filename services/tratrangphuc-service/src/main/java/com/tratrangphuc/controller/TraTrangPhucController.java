@@ -29,7 +29,7 @@ public class TraTrangPhucController {
     private final LoiRepository loiRepository;
     private final NhanVienRepository nhanVienRepository;
 
-    @GetMapping
+    @GetMapping({"", "/"})
     public String trangChu() {
         return "timKiemKH";
     }
@@ -95,10 +95,15 @@ public class TraTrangPhucController {
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
             PhieuTraRequestDTO request = mapper.readValue(requestJson, PhieuTraRequestDTO.class);
+            
+            // Lấy trước thông tin hóa đơn để hiển thị ra màn hình thành công
+            HoaDonTraDTO hoaDon = phieuTraService.preview(request);
+            
             var phieuTra = phieuTraService.xacNhanTra(request);
             redirectAttributes.addFlashAttribute("thongBao",
                     "Xác nhận trả thành công! Mã phiếu trả: #" + phieuTra.getId());
             redirectAttributes.addFlashAttribute("loai", "success");
+            redirectAttributes.addFlashAttribute("hoaDon", hoaDon);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("thongBao",
                     "Lỗi khi xác nhận trả: " + e.getMessage());

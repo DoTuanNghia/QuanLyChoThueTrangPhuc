@@ -26,7 +26,6 @@
                 <h1 class="card-title">
                     Tìm Kiếm Khách Hàng
                 </h1>
-                <p class="card-subtitle">Nhập tên khách hàng đang đến trả trang phục</p>
             </div>
             <div class="card-body">
                 <form action="${pageContext.request.contextPath}/tra-trang-phuc/tim-kiem" method="get">
