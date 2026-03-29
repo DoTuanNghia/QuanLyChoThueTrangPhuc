@@ -16,15 +16,23 @@ public class ChiTietLoi {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    // Luu loiId tu loihongphat-service (khong phai FK noi DB)
+    @Column(name = "loi_id")
+    private int loiId;
+
+    // Luu ten loi de hien thi (denormalized, tranh goi FeignClient khi doc lai)
+    @Column(name = "ten_loi", length = 100)
+    private String tenLoi;
+
+    // Muc phat tai thoi diem ghi nhan
+    @Column(name = "muc_phat")
+    private float mucPhat;
+
     @Column(name = "tong_loi")
-    private int tongLoi;
+    private int tongLoi;       // so luong loi nay
 
     @Column(name = "tien_phat")
-    private float tienPhat;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "loi_id")
-    private Loi loi;
+    private float tienPhat;    // = mucPhat * tongLoi
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chi_tiet_tra_id")

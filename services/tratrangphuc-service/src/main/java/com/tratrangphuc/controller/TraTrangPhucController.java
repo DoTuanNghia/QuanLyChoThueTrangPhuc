@@ -1,119 +1,89 @@
 package com.tratrangphuc.controller;
 
+import com.tratrangphuc.client.LoiClient;
 import com.tratrangphuc.dto.*;
-import com.tratrangphuc.model.Loi;
+import com.tratrangphuc.model.KhachHang;
 import com.tratrangphuc.model.NhanVien;
 import com.tratrangphuc.service.KhachHangService;
 import com.tratrangphuc.service.PhieuThueService;
 import com.tratrangphuc.service.PhieuTraService;
-import com.tratrangphuc.repository.LoiRepository;
 import com.tratrangphuc.repository.NhanVienRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Map;
 
-@Controller
-@RequestMapping("/tra-trang-phuc")
+@RestController
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class TraTrangPhucController {
 
     private final KhachHangService khachHangService;
     private final PhieuThueService phieuThueService;
     private final PhieuTraService phieuTraService;
-    private final LoiRepository loiRepository;
     private final NhanVienRepository nhanVienRepository;
+    private final LoiClient loiClient;
 
-    @GetMapping({"", "/"})
-    public String trangChu() {
-        return "timKiemKH";
-    }
+    // =========== KHACH HANG ===========
 
-    @GetMapping("/tim-kiem")
-    public String timKiem(@RequestParam(name = "ten", required = false) String ten, Model model) {
-        if (ten != null)
-            ten = ten.trim();
-
-        if (ten == null || ten.isEmpty()) {
-            model.addAttribute("tuKhoa", "Tất cả khách hàng");
-            model.addAttribute("danhSachKH", khachHangService.timTatCa());
-        } else {
-            model.addAttribute("tuKhoa", ten);
-            model.addAttribute("danhSachKH", khachHangService.timTheoTen(ten));
+    @GetMapping("/khach-hang")
+    public ResponseEntity<List<KhachHang>> timKiemKhachHang(
+            @RequestParam(name = "ten", required = false) String ten) {
+        if (ten == null || ten.trim().isEmpty()) {
+            return ResponseEntity.ok(khachHangService.timTatCa());
         }
-
-        return "danhSachKH";
+        return ResponseEntity.ok(khachHangService.timTheoTen(ten.trim()));
     }
 
-    @GetMapping("/trang-phuc-dang-muon/{khachHangId}")
-    public String danhSachTrangPhucThue(@PathVariable int khachHangId, Model model) {
-        var phieuThueList = phieuThueService.layDanhSachChuaTraTheoKH(khachHangId);
-
-        if (phieuThueList.isEmpty()) {
-            model.addAttribute("thongBao", "Khách hàng không có trang phục nào đang mượn.");
-            return "thongBao";
+    @GetMapping("/khach-hang/{id}/phieu-thue")
+    public ResponseEntity<?> phieuThueChuaTra(@PathVariable int id) {
+        var list = phieuThueService.layDanhSachChuaTraTheoKH(id);
+        if (list.isEmpty()) {
+            return ResponseEntity.ok(Map.of("message", "Khách hàng không có trang phục nào đang mượn."));
         }
-
-        List<Loi> danhSachLoi = loiRepository.findAll();
-        List<NhanVien> danhSachNV = nhanVienRepository.findAll();
-
-        model.addAttribute("phieuThueList", phieuThueList);
-        model.addAttribute("khachHangId", khachHangId);
-        model.addAttribute("tenKhachHang", phieuThueList.get(0).getTenKhachHang());
-        model.addAttribute("danhSachLoi", danhSachLoi);
-        model.addAttribute("danhSachNV", danhSachNV);
-        return "danhSachTrangPhucThue";
+        return ResponseEntity.ok(list);
     }
 
-    @PostMapping("/preview-hoa-don")
-    public String previewHoaDon(@ModelAttribute PhieuTraFormDTO formDTO, Model model) {
-        PhieuTraRequestDTO request = formDTO.toRequestDTO();
+    // =========== NHAN VIEN ===========
+
+    @GetMapping("/nhan-vien")
+    public ResponseEntity<List<NhanVien>> layNhanVien() {
+        return ResponseEntity.ok(nhanVienRepository.findAll());
+    }
+
+    // =========== LOI (proxy sang loihongphat-service) ===========
+
+    @GetMapping("/loi")
+    public ResponseEntity<List<LoiDTO>> layDanhSachLoi() {
+        return ResponseEntity.ok(loiClient.layTatCaLoi());
+    }
+
+    // =========== TRA TRANG PHUC ===========
+
+    @PostMapping("/tra/preview")
+    public ResponseEntity<HoaDonTraDTO> previewHoaDon(@RequestBody PhieuTraRequestDTO request) {
         HoaDonTraDTO hoaDon = phieuTraService.preview(request);
-
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            String requestJson = mapper.writeValueAsString(request);
-            model.addAttribute("requestJson", requestJson);
-        } catch (Exception e) {
-            model.addAttribute("requestJson", "{}");
-        }
-
-        model.addAttribute("hoaDon", hoaDon);
-        return "hoaDonTra";
+        return ResponseEntity.ok(hoaDon);
     }
 
-    @PostMapping("/xac-nhan")
-    public String xacNhanTra(@RequestParam("requestJson") String requestJson,
-            RedirectAttributes redirectAttributes) {
+    @PostMapping("/tra/xac-nhan")
+    public ResponseEntity<Map<String, Object>> xacNhanTra(@RequestBody PhieuTraRequestDTO request) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            PhieuTraRequestDTO request = mapper.readValue(requestJson, PhieuTraRequestDTO.class);
-            
-            // Lấy trước thông tin hóa đơn để hiển thị ra màn hình thành công
             HoaDonTraDTO hoaDon = phieuTraService.preview(request);
-            
             var phieuTra = phieuTraService.xacNhanTra(request);
-            redirectAttributes.addFlashAttribute("thongBao",
-                    "Xác nhận trả thành công! Mã phiếu trả: #" + phieuTra.getId());
-            redirectAttributes.addFlashAttribute("loai", "success");
-            redirectAttributes.addFlashAttribute("hoaDon", hoaDon);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Xác nhận trả thành công! Mã phiếu trả: #" + phieuTra.getId(),
+                    "phieuTraId", phieuTra.getId(),
+                    "hoaDon", hoaDon
+            ));
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("thongBao",
-                    "Lỗi khi xác nhận trả: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("loai", "error");
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Lỗi khi xác nhận trả: " + e.getMessage()
+            ));
         }
-        return "redirect:/tra-trang-phuc/ket-qua";
-    }
-
-    @GetMapping("/ket-qua")
-    public String ketQua(Model model) {
-        return "thongBao";
     }
 }

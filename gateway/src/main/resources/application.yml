@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: false
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: false
+
+      routes:
+        # loihongphat-service: quan ly loi hong phat
+        - id: loihongphat-service
+          uri: lb://LOIHONGPHAT-SERVICE
+          predicates:
+            - Path=/api/loi/**
+
+        # tratrangphuc-service: tra trang phuc + proxy khach hang, nhan vien, phieu thue
+        - id: tratrangphuc-service
+          uri: lb://TRATRANGPHUC-SERVICE
+          predicates:
+            - Path=/api/tra/**, /api/khach-hang/**, /api/nhan-vien/**, /api/phieu-thue/**
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+
+server:
+  port: 8888
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, gateway
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

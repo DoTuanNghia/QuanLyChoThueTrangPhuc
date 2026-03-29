@@ -11,8 +11,9 @@
 
     <modules>
         <module>services/tratrangphuc-service</module>
-        <!-- Add other services here later if needed, e.g.: -->
-        <!-- <module>services/config-service</module> -->
+        <module>services/loihongphat-service</module>
+        <module>services/discovery-service</module>
+        <module>gateway</module>
     </modules>
 
 </project>

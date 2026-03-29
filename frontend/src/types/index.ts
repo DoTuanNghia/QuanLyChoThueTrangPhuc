@@ -1,0 +1,114 @@
+// Cac kieu du lieu dung chung trong app
+
+export interface Loi {
+  id: number;
+  tenLoi: string;
+  mucPhat: number;
+  moTa?: string;
+}
+
+export interface KhachHang {
+  id: number;
+  ten: string;
+  diaChi?: string;
+  soDienThoai?: string;
+}
+
+export interface NhanVien {
+  id: number;
+  ten: string;
+  ngaySinh?: string;
+  diaChi?: string;
+  soDienThoai?: string;
+}
+
+export interface TrangPhuc {
+  id: number;
+  ten: string;
+  donGia: number;
+  soLuong: number;
+  soLuongThue: number;
+}
+
+export interface ChiTietThue {
+  id: number;
+  soLuong: number;
+  thanhTien: number;
+  trangPhuc: TrangPhuc;
+  daTra: boolean;
+  soLuongDaTra: number;
+}
+
+export interface PhieuThue {
+  id: number;
+  tienCoc: number;
+  tongTien: number;
+  ngayLap: string;
+  tenKhachHang: string;
+  chiTietThueList: ChiTietThue[];
+}
+
+// Request DTOs
+export interface LoiPhatRequest {
+  loiId: number;
+  soLuong: number;
+}
+
+export interface ChiTietTraRequest {
+  chiTietThueId: number;
+  soLuongTra: number;
+  danhSachLoi: LoiPhatRequest[];
+}
+
+export interface PhieuTraRequest {
+  phieuThueId: number;
+  nhanVienId: number;
+  danhSachTra: ChiTietTraRequest[];
+}
+
+// Response DTOs
+export interface ChiTietLoiView {
+  tenLoi: string;
+  mucPhat: number;
+  soLuong: number;
+  tienPhat: number;
+}
+
+export interface HoaDonChiTiet {
+  tenTrangPhuc: string;
+  soLuong: number;
+  donGia: number;
+  ngayThue: string;
+  soNgayThue: number;
+  tienThue: number;
+  tienPhat: number;
+  danhSachLoi: ChiTietLoiView[];
+  tongCong: number;
+}
+
+export interface HoaDonTra {
+  tenKhachHang: string;
+  soDienThoaiKH: string;
+  diaChiKH: string;
+  phieuThueId: number;
+  ngayThue: string;
+  tienCoc: number;
+  ngayTra: string;
+  tenNhanVien: string;
+  danhSachChiTiet: HoaDonChiTiet[];
+  tongTienThue: number;
+  tongTienPhat: number;
+  tongThanhToan: number;
+}
+
+// Navigation param types
+export type RootStackParamList = {
+  Home: undefined;
+  DanhSachLoi: undefined;
+  ThemSuaLoi: { loi?: Loi };
+  TimKiemKH: undefined;
+  DanhSachPhieuThue: { khachHang: KhachHang };
+  ChonTra: { phieuThue: PhieuThue; khachHang: KhachHang };
+  PreviewHoaDon: { request: PhieuTraRequest; hoaDon: HoaDonTra };
+  KetQua: { success: boolean; message: string; phieuTraId?: number };
+};
