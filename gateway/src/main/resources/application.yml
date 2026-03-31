@@ -7,7 +7,7 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOriginPatterns: "*"
+            allowedOrigins: "*"
             allowedMethods:
               - GET
               - POST
@@ -15,6 +15,7 @@ spring:
               - DELETE
               - OPTIONS
             allowedHeaders: "*"
+            exposedHeaders: "*"
             allowCredentials: false
 
       default-filters:
@@ -32,11 +33,11 @@ spring:
           predicates:
             - Path=/api/loi/**
 
-        # tratrangphuc-service: tra trang phuc + proxy khach hang, nhan vien, phieu thue
+        # tratrangphuc-service: tra trang phuc + proxy khach hang, nhan vien, phieu thue, trang phuc
         - id: tratrangphuc-service
           uri: lb://TRATRANGPHUC-SERVICE
           predicates:
-            - Path=/api/tra/**, /api/khach-hang/**, /api/nhan-vien/**, /api/phieu-thue/**
+            - Path=/api/tra/**, /api/khach-hang/**, /api/nhan-vien/**, /api/phieu-thue/**, /api/trang-phuc/**
 
 eureka:
   client:
@@ -56,4 +57,4 @@ management:
 
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
+    "[org.springframework.cloud.gateway]": DEBUG

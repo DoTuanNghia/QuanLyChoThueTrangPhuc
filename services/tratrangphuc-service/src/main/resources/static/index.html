@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Cho Thuê Trang Phục | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --glass: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        nav {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05);
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        .stat-card.secondary::after { background: var(--secondary); }
+        .stat-card.success::after { background: var(--success); }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-sub);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Tabs */
+        .tabs {
+            background: #e2e8f0;
+            padding: 0.4rem;
+            border-radius: 0.75rem;
+            display: inline-flex;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: var(--text-sub);
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--card-bg);
+            color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        /* Content Area */
+        .content-card {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            min-height: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-warning { background: #fef9c3; color: #854d0e; }
+
+        /* Form / Wizard */
+        .btn {
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.02);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top:0; left:0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+
+    </style>
+</head>
+<body>
+
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <nav>
+        <div class="logo">CostumeRental Pro</div>
+        <div>
+            <span id="server-status" class="badge badge-success">Online</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Khách Hàng</span>
+                <span id="stat-customers" class="stat-value">0</span>
+            </div>
+            <div class="stat-card secondary">
+                <span class="stat-label">Trang Phục</span>
+                <span id="stat-costumes" class="stat-value">0</span>
+            </div>
+            <div class="stat-card success">
+                <span class="stat-label">Phiếu Mượn</span>
+                <span id="stat-rentals" class="stat-value">0</span>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('customers')">Khách Hàng</button>
+            <button class="tab-btn" onclick="switchTab('costumes')">Trang Phục</button>
+            <button class="tab-btn" onclick="switchTab('rentals')">Phiếu Thuê</button>
+            <button class="tab-btn" onclick="switchTab('faults')">Danh Mục Lỗi</button>
+        </div>
+
+        <div class="content-card fade-in" id="main-content">
+            <!-- Content dynamic injected here -->
+            <h2 id="view-title">Đang tải dữ liệu...</h2>
+            <div id="view-data"></div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration - Using Gateway
+        const API_BASE = 'http://localhost:8888/api';
+        
+        let currentTab = 'customers';
+
+        async function fetchData(endpoint) {
+            document.getElementById('loading').style.display = 'flex';
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                if (!response.ok) throw new Error('API Error');
+            } catch (err) {
+                console.error('Fetch error for', endpoint, ':', err);
+                const statusBadge = document.getElementById('server-status');
+                statusBadge.innerText = 'Offline / Error';
+                statusBadge.className = 'badge badge-warning';
+                alert(`Không thể kết nối đến API Gateway (${API_BASE}${endpoint}).
+Kiểm tra console (F12) để biết chi tiết. 
+Hãy đảm bảo Discovery Service (8761), Gateway (8888) và các Service liên quan đã chạy.`);
+                return [];
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        async function updateStats() {
+            const customers = await fetchData('/khach-hang');
+            const costumes = await fetchData('/trang-phuc');
+            const rentals = await fetchData('/phieu-thue');
+            
+            document.getElementById('stat-customers').innerText = Array.isArray(customers) ? customers.length : 0;
+            document.getElementById('stat-costumes').innerText = Array.isArray(costumes) ? costumes.length : 0;
+            document.getElementById('stat-rentals').innerText = Array.isArray(rentals) ? rentals.length : 0;
+        }
+
+        async function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const contentDiv = document.getElementById('view-data');
+            const title = document.getElementById('view-title');
+            contentDiv.innerHTML = '';
+
+            if (tab === 'customers') {
+                title.innerText = 'Danh Sách Khách Hàng';
+                const data = await fetchData('/khach-hang');
+                contentDiv.innerHTML = renderTable(data, ['ID', 'Tên', 'SĐT', 'Địa Chỉ'], ['id', 'ten', 'soDienThoai', 'diaChi']);
+            } 
+            else if (tab === 'costumes') {
+                title.innerText = 'Danh Mục Trang Phục';
+                const data = await fetchData('/trang-phuc');
+                contentDiv.innerHTML = renderTable(data, ['ID', 'Tên', 'Đơn Giá', 'Số Lượng', 'Đã Thuê'], ['id', 'ten', 'donGia', 'soLuong', 'soLuongThue']);
+            }
+            else if (tab === 'rentals') {
+                title.innerText = 'Phiếu Thuê Đang Hoạt Động';
+                const data = await fetchData('/phieu-thue');
+                contentDiv.innerHTML = renderTable(data, ['ID', 'Ngày Lập', 'Tiền Cọc', 'Tổng Tiền'], ['id', 'ngayLap', 'tienCoc', 'tongTien']);
+            }
+            else if (tab === 'faults') {
+                title.innerText = 'Danh Mục Lỗi & Mức Phạt';
+                const data = await fetchData('/loi');
+                contentDiv.innerHTML = renderTable(data, ['ID', 'Tên Lỗi', 'Mức Phạt', 'Mô Tả'], ['id', 'tenLoi', 'mucPhat', 'moTa']);
+            }
+        }
+
+        function renderTable(data, headers, fields) {
+            if (!data || data.length === 0) return '<p>Không có dữ liệu.</p>';
+            let html = `<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>`;
+            data.forEach(item => {
+                html += `<tr>${fields.map(f => `<td>${item[f] !== undefined ? item[f] : '-'}</td>`).join('')}</tr>`;
+            });
+            html += '</tbody></table>';
+            return html;
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStats();
+            switchTab('customers');
+        });
+
+    </script>
+</body>
+</html>
