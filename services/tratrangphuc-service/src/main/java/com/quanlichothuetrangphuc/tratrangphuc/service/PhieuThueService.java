@@ -2,6 +2,7 @@ package com.quanlichothuetrangphuc.tratrangphuc.service;
 
 import com.quanlichothuetrangphuc.tratrangphuc.dto.ChiTietThueDTO;
 import com.quanlichothuetrangphuc.tratrangphuc.dto.PhieuThueDTO;
+import com.quanlichothuetrangphuc.tratrangphuc.dto.PhieuThueListDTO;
 import com.quanlichothuetrangphuc.tratrangphuc.model.ChiTietThue;
 import com.quanlichothuetrangphuc.tratrangphuc.model.PhieuThue;
 import com.quanlichothuetrangphuc.tratrangphuc.repository.PhieuThueRepository;
@@ -61,6 +62,24 @@ public class PhieuThueService {
             dto.setDanhSachChuaTra(cttDtos);
             result.add(dto);
         }
+        return result;
+    }
+
+    public List<PhieuThueListDTO> layTatCaDTO() {
+        List<PhieuThue> phieuThues = phieuThueRepository.findAll();
+        List<PhieuThueListDTO> result = new ArrayList<>();
+
+        for (PhieuThue pt : phieuThues) {
+            PhieuThueListDTO dto = new PhieuThueListDTO();
+            dto.setId(pt.getId());
+            dto.setNgayLap(pt.getNgayLap().format(FMT));
+            dto.setTienCoc(pt.getTienCoc());
+            dto.setTongTien(pt.getTongTien());
+            dto.setTenKhachHang(pt.getKhachHang() != null ? pt.getKhachHang().getTen() : "");
+            dto.setSoDienThoaiKH(pt.getKhachHang() != null ? pt.getKhachHang().getSoDienThoai() : "");
+            result.add(dto);
+        }
+
         return result;
     }
 

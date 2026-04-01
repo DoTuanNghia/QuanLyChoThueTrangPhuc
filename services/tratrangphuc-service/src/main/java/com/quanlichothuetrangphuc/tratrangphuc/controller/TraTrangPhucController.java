@@ -3,6 +3,7 @@ package com.quanlichothuetrangphuc.tratrangphuc.controller;
 import com.quanlichothuetrangphuc.tratrangphuc.dto.*;
 import com.quanlichothuetrangphuc.tratrangphuc.model.KhachHang;
 import com.quanlichothuetrangphuc.tratrangphuc.model.NhanVien;
+import com.quanlichothuetrangphuc.tratrangphuc.model.TrangPhuc;
 import com.quanlichothuetrangphuc.tratrangphuc.service.KhachHangService;
 import com.quanlichothuetrangphuc.tratrangphuc.service.PhieuThueService;
 import com.quanlichothuetrangphuc.tratrangphuc.service.PhieuTraService;
@@ -18,6 +19,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class TraTrangPhucController {
 
     private final KhachHangService khachHangService;
@@ -53,11 +55,10 @@ public class TraTrangPhucController {
         return ResponseEntity.ok(nhanVienRepository.findAll());
     }
 
-
     // =========== TRANG PHUC ===========
 
     @GetMapping("/trang-phuc")
-    public ResponseEntity<List<com.quanlichothuetrangphuc.tratrangphuc.model.TrangPhuc>> layTatCaTrangPhuc() {
+    public ResponseEntity<List<TrangPhuc>> layTatCaTrangPhuc() {
         return ResponseEntity.ok(trangPhucService.layTatCa());
     }
 
@@ -65,7 +66,7 @@ public class TraTrangPhucController {
 
     @GetMapping("/phieu-thue")
     public ResponseEntity<?> layTatCaPhieuThue() {
-        return ResponseEntity.ok(phieuThueService.layTatCa());
+        return ResponseEntity.ok(phieuThueService.layTatCaDTO());
     }
 
     // =========== TRA TRANG PHUC ===========
@@ -88,6 +89,7 @@ public class TraTrangPhucController {
                     "hoaDon", hoaDon
             ));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
                     "message", "Lỗi khi xác nhận trả: " + e.getMessage()

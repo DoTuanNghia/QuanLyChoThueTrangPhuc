@@ -61,6 +61,9 @@ public class PhieuTraService {
             float tienPhatItem = 0;
             for (LoiPhatRequest loiReq : req.getDanhSachLoi()) {
                 LoiDTO loi = loiClient.layLoiTheoId(loiReq.getLoiId());
+                if (loi == null) {
+                    throw new RuntimeException("Không tìm thấy thông tin mức phạt cho lỗi ID=" + loiReq.getLoiId());
+                }
                 float phat = loi.getMucPhat() * loiReq.getSoLuong();
                 tienPhatItem += phat;
                 loiViews.add(new ChiTietLoiViewDTO(loi.getTenLoi(), loi.getMucPhat(), loiReq.getSoLuong(), phat));
@@ -120,6 +123,9 @@ public class PhieuTraService {
             float tienPhatItem = 0;
             for (LoiPhatRequest loiReq : req.getDanhSachLoi()) {
                 LoiDTO loiDTO = loiClient.layLoiTheoId(loiReq.getLoiId());
+                if (loiDTO == null) {
+                    throw new RuntimeException("Không tìm thấy thông tin mức phạt cho lỗi ID=" + loiReq.getLoiId());
+                }
                 float phat = loiDTO.getMucPhat() * loiReq.getSoLuong();
                 tienPhatItem += phat;
 
