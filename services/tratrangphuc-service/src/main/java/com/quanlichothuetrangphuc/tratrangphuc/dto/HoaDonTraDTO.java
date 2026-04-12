@@ -33,4 +33,5 @@ public class HoaDonTraDTO {
     private float tongTienThue;    // tổng tiền thuê các TP trả
     private float tongTienPhat;    // tổng tiền phạt
     private float tongThanhToan;   // = tongTienThue + tongTienPhat
+    private float soTienConLai;    // = tongThanhToan - tienCoc (dương: KH phải trả thêm, âm: trả lại KH)
 }

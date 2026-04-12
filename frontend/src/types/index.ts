@@ -46,6 +46,7 @@ export interface PhieuThue {
   ngayLap: string;
   tenKhachHang: string;
   chiTietThueList: ChiTietThue[];
+  danhSachChuaTra?: any[]; // from PhieuThueDTO backend
 }
 
 // Request DTOs
@@ -99,6 +100,7 @@ export interface HoaDonTra {
   tongTienThue: number;
   tongTienPhat: number;
   tongThanhToan: number;
+  soTienConLai: number; // dương: KH trả thêm, âm: trả lại KH
 }
 
 // Navigation param types

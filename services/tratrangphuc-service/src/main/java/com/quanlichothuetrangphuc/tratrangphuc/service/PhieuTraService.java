@@ -89,6 +89,7 @@ public class PhieuTraService {
         hoadon.setTongTienThue(tongTienThue);
         hoadon.setTongTienPhat(tongTienPhat);
         hoadon.setTongThanhToan(tongTienThue + tongTienPhat);
+        hoadon.setSoTienConLai((tongTienThue + tongTienPhat) - phieuThue.getTienCoc());
         return hoadon;
     }
 

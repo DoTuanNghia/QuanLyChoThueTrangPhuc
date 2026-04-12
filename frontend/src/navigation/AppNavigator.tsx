@@ -20,12 +20,14 @@ export default function AppNavigator() {
       <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
-          headerStyle: { backgroundColor: '#1a1a2e' },
-          headerTintColor: '#fff',
-          headerTitleStyle: { fontWeight: 'bold' },
+          headerStyle: { backgroundColor: '#FFFFFF' },
+          headerTintColor: '#1B2A4A',
+          headerTitleStyle: { fontWeight: '700', fontSize: 17, color: '#1B2A4A' },
+          headerShadowVisible: false,
+          contentStyle: { backgroundColor: '#F5F6FA' },
         }}
       >
-        <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Trang Chủ' }} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="DanhSachLoi" component={DanhSachLoiScreen} options={{ title: 'Quản Lý Lỗi Hỏng Phạt' }} />
         <Stack.Screen name="ThemSuaLoi" component={ThemSuaLoiScreen} options={({ route }) => ({
           title: route.params?.loi ? 'Sửa Lỗi' : 'Thêm Lỗi Mới',

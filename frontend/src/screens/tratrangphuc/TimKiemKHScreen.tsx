@@ -17,66 +17,76 @@ export default function TimKiemKHScreen({ navigation }: Props) {
 
   const handleTimKiem = async () => {
     try {
-      setLoading(true);
-      setSearched(true);
+      setLoading(true); setSearched(true);
       const data = await tratrangphucApi.timKiemKhachHang(tuKhoa);
       setDanhSach(data);
-    } catch (e: any) {
-      Alert.alert('Lỗi', e.message);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e: any) { Alert.alert('Lỗi', e.message); }
+    finally { setLoading(false); }
+  };
+
+  const getColor = (name: string) => {
+    const colors = ['#5B6FE6', '#00B894', '#E17055', '#0984E3', '#D63031', '#E84393', '#00CEC9', '#FDCB6E'];
+    return colors[name.charCodeAt(0) % colors.length];
   };
 
   const renderItem = ({ item }: { item: KhachHang }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => navigation.navigate('DanhSachPhieuThue', { khachHang: item })}
-      activeOpacity={0.8}
+      activeOpacity={0.7}
     >
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{item.ten.charAt(0).toUpperCase()}</Text>
+      <View style={[styles.avatar, { backgroundColor: getColor(item.ten) + '18' }]}>
+        <Text style={[styles.avatarText, { color: getColor(item.ten) }]}>{item.ten.charAt(0).toUpperCase()}</Text>
       </View>
       <View style={styles.info}>
         <Text style={styles.tenKH}>{item.ten}</Text>
-        <Text style={styles.sdt}>📞 {item.soDienThoai || '—'}</Text>
-        <Text style={styles.diaChi} numberOfLines={1}>📍 {item.diaChi || '—'}</Text>
+        <Text style={styles.detailText}>📞 {item.soDienThoai || 'Chưa cập nhật'}</Text>
+        <Text style={styles.detailText} numberOfLines={1}>📍 {item.diaChi || 'Chưa cập nhật'}</Text>
       </View>
-      <Text style={styles.arrow}>›</Text>
+      <View style={styles.arrowBox}><Text style={styles.arrow}>→</Text></View>
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.searchBox}>
-        <TextInput
-          style={styles.searchInput}
-          value={tuKhoa}
-          onChangeText={setTuKhoa}
-          placeholder="Nhập tên khách hàng..."
-          placeholderTextColor="#aaa"
-          onSubmitEditing={handleTimKiem}
-          returnKeyType="search"
-        />
-        <TouchableOpacity style={styles.searchBtn} onPress={handleTimKiem}>
-          <Text style={styles.searchBtnText}>🔍</Text>
-        </TouchableOpacity>
+      <View style={styles.searchSection}>
+        <Text style={styles.heroTitle}>Tìm kiếm khách hàng</Text>
+        <Text style={styles.heroSub}>Nhập tên KH để tìm các phiếu thuê đang mượn</Text>
+        <View style={styles.searchBox}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            value={tuKhoa} onChangeText={setTuKhoa}
+            placeholder="Nhập tên khách hàng..." placeholderTextColor="#B0B7C3"
+            onSubmitEditing={handleTimKiem} returnKeyType="search"
+          />
+          <TouchableOpacity style={styles.searchBtn} onPress={handleTimKiem}>
+            <Text style={styles.searchBtnText}>Tìm kiếm</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#e94560" style={{ marginTop: 40 }} />
+        <View style={styles.loadingBox}><ActivityIndicator size="large" color="#5B6FE6" /></View>
       ) : (
         <FlatList
           data={danhSach}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
-          contentContainerStyle={{ padding: 16, gap: 10 }}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={
+            searched && danhSach.length > 0 ? (
+              <Text style={styles.resultCount}>Tìm thấy {danhSach.length} khách hàng</Text>
+            ) : null
+          }
           ListEmptyComponent={
-            searched ? (
-              <Text style={styles.emptyText}>Không tìm thấy khách hàng nào</Text>
-            ) : (
-              <Text style={styles.emptyText}>Nhập tên và nhấn tìm kiếm</Text>
-            )
+            <View style={styles.emptyBox}>
+              <Text style={styles.emptyIcon}>{searched ? '🔍' : '👆'}</Text>
+              <Text style={styles.emptyTitle}>{searched ? 'Không tìm thấy' : 'Bắt đầu tìm kiếm'}</Text>
+              <Text style={styles.emptyText}>
+                {searched ? `Không có KH nào tên "${tuKhoa}" đang mượn trang phục` : 'Nhập tên khách hàng rồi nhấn "Tìm kiếm"'}
+              </Text>
+            </View>
           }
         />
       )}
@@ -85,30 +95,34 @@ export default function TimKiemKHScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f2f5' },
-  searchBox: { flexDirection: 'row', margin: 16, gap: 10 },
-  searchInput: {
-    flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 12,
-    fontSize: 15, color: '#1a1a2e', borderWidth: 1.5, borderColor: '#ddd',
-  },
-  searchBtn: {
-    backgroundColor: '#e94560', width: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
-  },
-  searchBtnText: { fontSize: 20 },
+  container: { flex: 1, backgroundColor: '#F5F6FA' },
+  searchSection: { backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingTop: 8, paddingBottom: 20, borderBottomLeftRadius: 24, borderBottomRightRadius: 24, shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.04, shadowRadius: 10, elevation: 3 },
+  heroTitle: { fontSize: 22, fontWeight: '800', color: '#1B2A4A' },
+  heroSub: { fontSize: 13, color: '#8892A6', marginTop: 4, marginBottom: 16 },
+  searchBox: { flexDirection: 'row', backgroundColor: '#F5F6FA', borderRadius: 14, alignItems: 'center', overflow: 'hidden' },
+  searchIcon: { paddingLeft: 14, fontSize: 16 },
+  searchInput: { flex: 1, padding: 13, fontSize: 15, color: '#1B2A4A', fontWeight: '500' },
+  searchBtn: { backgroundColor: '#5B6FE6', paddingHorizontal: 18, paddingVertical: 13, borderRadius: 12, margin: 3 },
+  searchBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+
+  loadingBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  listContent: { padding: 16, gap: 10 },
+  resultCount: { fontSize: 13, fontWeight: '600', color: '#8892A6', marginBottom: 10 },
+
   card: {
-    backgroundColor: '#fff', borderRadius: 12, padding: 16, flexDirection: 'row',
-    alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, shadowRadius: 6, elevation: 3,
+    backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14, flexDirection: 'row', alignItems: 'center',
+    shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
   },
-  avatar: {
-    width: 46, height: 46, borderRadius: 23, backgroundColor: '#1a1a2e',
-    alignItems: 'center', justifyContent: 'center', marginRight: 14,
-  },
-  avatarText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+  avatar: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  avatarText: { fontSize: 20, fontWeight: '800' },
   info: { flex: 1 },
-  tenKH: { fontSize: 16, fontWeight: '700', color: '#1a1a2e', marginBottom: 3 },
-  sdt: { fontSize: 13, color: '#555', marginBottom: 2 },
-  diaChi: { fontSize: 13, color: '#777' },
-  arrow: { fontSize: 28, color: '#e94560', fontWeight: 'bold' },
-  emptyText: { textAlign: 'center', color: '#999', marginTop: 60, fontSize: 15 },
+  tenKH: { fontSize: 15, fontWeight: '700', color: '#1B2A4A', marginBottom: 3 },
+  detailText: { fontSize: 12, color: '#8892A6', marginBottom: 1 },
+  arrowBox: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#F0F1F5', alignItems: 'center', justifyContent: 'center' },
+  arrow: { fontSize: 14, color: '#5B6FE6', fontWeight: 'bold' },
+
+  emptyBox: { alignItems: 'center', paddingTop: 60, paddingHorizontal: 40 },
+  emptyIcon: { fontSize: 48, marginBottom: 12 },
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#1B2A4A', marginBottom: 6 },
+  emptyText: { fontSize: 13, color: '#8892A6', textAlign: 'center', lineHeight: 20 },
 });
