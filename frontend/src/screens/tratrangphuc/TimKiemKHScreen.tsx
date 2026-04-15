@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, FlatList, TouchableOpacity,
-  StyleSheet, Alert, ActivityIndicator, SafeAreaView,
+  StyleSheet, Alert, ActivityIndicator,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, KhachHang } from '../../types';
 import { tratrangphucApi } from '../../api/tratrangphucApi';
 
 type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'TimKiemKH'> };
+
+const AVATAR_COLORS = ['#5B6FE6', '#00B894', '#E17055', '#0984E3', '#D63031', '#E84393', '#00CEC9', '#6C5CE7'];
+const getColor = (name: string) => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
 
 export default function TimKiemKHScreen({ navigation }: Props) {
   const [tuKhoa, setTuKhoa] = useState('');
@@ -24,50 +27,75 @@ export default function TimKiemKHScreen({ navigation }: Props) {
     finally { setLoading(false); }
   };
 
-  const getColor = (name: string) => {
-    const colors = ['#5B6FE6', '#00B894', '#E17055', '#0984E3', '#D63031', '#E84393', '#00CEC9', '#FDCB6E'];
-    return colors[name.charCodeAt(0) % colors.length];
+  const renderItem = ({ item }: { item: KhachHang }) => {
+    const color = getColor(item.ten);
+    return (
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => navigation.navigate('DanhSachPhieuThue', { khachHang: item })}
+        activeOpacity={0.75}
+      >
+        <View style={[styles.avatar, { backgroundColor: color + '18' }]}>
+          <Text style={[styles.avatarText, { color }]}>{item.ten.charAt(0).toUpperCase()}</Text>
+        </View>
+        <View style={styles.info}>
+          <Text style={styles.tenKH}>{item.ten}</Text>
+          <View style={styles.metaRow}>
+            <Text style={styles.metaItem}>📞 {item.soDienThoai || 'Chưa cập nhật'}</Text>
+            {item.diaChi && <Text style={styles.metaDot}>·</Text>}
+            {item.diaChi && (
+              <Text style={styles.metaItem} numberOfLines={1}>
+                📍 {item.diaChi}
+              </Text>
+            )}
+          </View>
+        </View>
+        <View style={[styles.arrowBox, { backgroundColor: color + '14' }]}>
+          <Text style={[styles.arrow, { color }]}>→</Text>
+        </View>
+      </TouchableOpacity>
+    );
   };
 
-  const renderItem = ({ item }: { item: KhachHang }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate('DanhSachPhieuThue', { khachHang: item })}
-      activeOpacity={0.7}
-    >
-      <View style={[styles.avatar, { backgroundColor: getColor(item.ten) + '18' }]}>
-        <Text style={[styles.avatarText, { color: getColor(item.ten) }]}>{item.ten.charAt(0).toUpperCase()}</Text>
-      </View>
-      <View style={styles.info}>
-        <Text style={styles.tenKH}>{item.ten}</Text>
-        <Text style={styles.detailText}>📞 {item.soDienThoai || 'Chưa cập nhật'}</Text>
-        <Text style={styles.detailText} numberOfLines={1}>📍 {item.diaChi || 'Chưa cập nhật'}</Text>
-      </View>
-      <View style={styles.arrowBox}><Text style={styles.arrow}>→</Text></View>
-    </TouchableOpacity>
-  );
-
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.searchSection}>
-        <Text style={styles.heroTitle}>Tìm kiếm khách hàng</Text>
-        <Text style={styles.heroSub}>Nhập tên KH để tìm các phiếu thuê đang mượn</Text>
-        <View style={styles.searchBox}>
-          <Text style={styles.searchIcon}>🔍</Text>
-          <TextInput
-            style={styles.searchInput}
-            value={tuKhoa} onChangeText={setTuKhoa}
-            placeholder="Nhập tên khách hàng..." placeholderTextColor="#B0B7C3"
-            onSubmitEditing={handleTimKiem} returnKeyType="search"
-          />
-          <TouchableOpacity style={styles.searchBtn} onPress={handleTimKiem}>
-            <Text style={styles.searchBtnText}>Tìm kiếm</Text>
-          </TouchableOpacity>
+    <View style={styles.page}>
+      {/* Hero header */}
+      <View style={styles.heroSection}>
+        <View style={styles.heroContent}>
+          <View style={styles.heroIcon}>
+            <Text style={styles.heroIconText}>🔍</Text>
+          </View>
+          <View>
+            <Text style={styles.heroTitle}>Trả trang phục</Text>
+            <Text style={styles.heroSub}>Tìm khách hàng để bắt đầu quy trình trả</Text>
+          </View>
+        </View>
+
+        <View style={styles.searchWrapper}>
+          <View style={styles.searchBox}>
+            <Text style={styles.searchIcon}>👤</Text>
+            <TextInput
+              style={styles.searchInput}
+              value={tuKhoa}
+              onChangeText={setTuKhoa}
+              placeholder="Nhập tên khách hàng..."
+              placeholderTextColor="#B0B7C3"
+              onSubmitEditing={handleTimKiem}
+              returnKeyType="search"
+            />
+            <TouchableOpacity style={styles.searchBtn} onPress={handleTimKiem} activeOpacity={0.8}>
+              <Text style={styles.searchBtnText}>Tìm kiếm</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
+      {/* Results area */}
       {loading ? (
-        <View style={styles.loadingBox}><ActivityIndicator size="large" color="#5B6FE6" /></View>
+        <View style={styles.loadingBox}>
+          <ActivityIndicator size="large" color="#5B6FE6" />
+          <Text style={styles.loadingText}>Đang tìm kiếm...</Text>
+        </View>
       ) : (
         <FlatList
           data={danhSach}
@@ -76,53 +104,110 @@ export default function TimKiemKHScreen({ navigation }: Props) {
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={
             searched && danhSach.length > 0 ? (
-              <Text style={styles.resultCount}>Tìm thấy {danhSach.length} khách hàng</Text>
+              <View style={styles.resultHeader}>
+                <View style={styles.resultDot} />
+                <Text style={styles.resultCount}>
+                  Tìm thấy <Text style={styles.resultCountBold}>{danhSach.length}</Text> khách hàng
+                </Text>
+              </View>
             ) : null
           }
           ListEmptyComponent={
             <View style={styles.emptyBox}>
-              <Text style={styles.emptyIcon}>{searched ? '🔍' : '👆'}</Text>
-              <Text style={styles.emptyTitle}>{searched ? 'Không tìm thấy' : 'Bắt đầu tìm kiếm'}</Text>
+              <Text style={styles.emptyIcon}>{searched ? '🔍' : '👋'}</Text>
+              <Text style={styles.emptyTitle}>
+                {searched ? 'Không tìm thấy kết quả' : 'Bắt đầu tìm kiếm'}
+              </Text>
               <Text style={styles.emptyText}>
-                {searched ? `Không có KH nào tên "${tuKhoa}" đang mượn trang phục` : 'Nhập tên khách hàng rồi nhấn "Tìm kiếm"'}
+                {searched
+                  ? `Không có khách hàng nào tên "${tuKhoa}" đang mượn trang phục`
+                  : 'Nhập tên khách hàng rồi nhấn "Tìm kiếm"'}
               </Text>
             </View>
           }
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
+const ACCENT = '#5B6FE6';
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F6FA' },
-  searchSection: { backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingTop: 8, paddingBottom: 20, borderBottomLeftRadius: 24, borderBottomRightRadius: 24, shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.04, shadowRadius: 10, elevation: 3 },
+  page: { flex: 1, backgroundColor: '#F4F6FB' },
+
+  heroSection: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 28, paddingTop: 28, paddingBottom: 24,
+    borderBottomWidth: 1, borderBottomColor: '#ECEEF4',
+    shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04, shadowRadius: 8, elevation: 3,
+  },
+  heroContent: {
+    flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 20,
+  },
+  heroIcon: {
+    width: 52, height: 52, borderRadius: 14, backgroundColor: '#EEF0FB',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  heroIconText: { fontSize: 24 },
   heroTitle: { fontSize: 22, fontWeight: '800', color: '#1B2A4A' },
-  heroSub: { fontSize: 13, color: '#8892A6', marginTop: 4, marginBottom: 16 },
-  searchBox: { flexDirection: 'row', backgroundColor: '#F5F6FA', borderRadius: 14, alignItems: 'center', overflow: 'hidden' },
-  searchIcon: { paddingLeft: 14, fontSize: 16 },
-  searchInput: { flex: 1, padding: 13, fontSize: 15, color: '#1B2A4A', fontWeight: '500' },
-  searchBtn: { backgroundColor: '#5B6FE6', paddingHorizontal: 18, paddingVertical: 13, borderRadius: 12, margin: 3 },
+  heroSub: { fontSize: 13, color: '#8892A6', marginTop: 2 },
+
+  searchWrapper: { maxWidth: 600 },
+  searchBox: {
+    flexDirection: 'row', backgroundColor: '#F4F6FB', borderRadius: 14,
+    alignItems: 'center', borderWidth: 1.5, borderColor: '#E8EAF0', overflow: 'hidden',
+  },
+  searchIcon: { paddingLeft: 16, fontSize: 16 },
+  searchInput: {
+    flex: 1, paddingVertical: 13, paddingHorizontal: 12,
+    fontSize: 15, color: '#1B2A4A', fontWeight: '500',
+  },
+  searchBtn: {
+    backgroundColor: ACCENT, paddingHorizontal: 22,
+    paddingVertical: 13, margin: 3, borderRadius: 11,
+  },
   searchBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
 
-  loadingBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  listContent: { padding: 16, gap: 10 },
-  resultCount: { fontSize: 13, fontWeight: '600', color: '#8892A6', marginBottom: 10 },
+  loadingBox: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
+  loadingText: { fontSize: 14, color: '#8892A6' },
+
+  listContent: { padding: 24, paddingTop: 16, gap: 10, maxWidth: 800, alignSelf: 'center', width: '100%' },
+
+  resultHeader: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    marginBottom: 12, paddingVertical: 4,
+  },
+  resultDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: ACCENT },
+  resultCount: { fontSize: 13, color: '#8892A6' },
+  resultCountBold: { fontWeight: '700', color: '#1B2A4A' },
 
   card: {
-    backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14, flexDirection: 'row', alignItems: 'center',
-    shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+    backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16,
+    flexDirection: 'row', alignItems: 'center',
+    shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 10, elevation: 2,
+    borderWidth: 1, borderColor: '#ECEEF4',
   },
-  avatar: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  avatar: {
+    width: 50, height: 50, borderRadius: 14,
+    alignItems: 'center', justifyContent: 'center', marginRight: 14, flexShrink: 0,
+  },
   avatarText: { fontSize: 20, fontWeight: '800' },
   info: { flex: 1 },
-  tenKH: { fontSize: 15, fontWeight: '700', color: '#1B2A4A', marginBottom: 3 },
-  detailText: { fontSize: 12, color: '#8892A6', marginBottom: 1 },
-  arrowBox: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#F0F1F5', alignItems: 'center', justifyContent: 'center' },
-  arrow: { fontSize: 14, color: '#5B6FE6', fontWeight: 'bold' },
+  tenKH: { fontSize: 15, fontWeight: '700', color: '#1B2A4A', marginBottom: 5 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+  metaItem: { fontSize: 12, color: '#8892A6' },
+  metaDot: { fontSize: 12, color: '#CBD0DC' },
+  arrowBox: {
+    width: 34, height: 34, borderRadius: 10,
+    alignItems: 'center', justifyContent: 'center', marginLeft: 8,
+  },
+  arrow: { fontSize: 16, fontWeight: 'bold' },
 
-  emptyBox: { alignItems: 'center', paddingTop: 60, paddingHorizontal: 40 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#1B2A4A', marginBottom: 6 },
+  emptyBox: { alignItems: 'center', paddingTop: 80, paddingHorizontal: 40 },
+  emptyIcon: { fontSize: 56, marginBottom: 16 },
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1B2A4A', marginBottom: 8 },
   emptyText: { fontSize: 13, color: '#8892A6', textAlign: 'center', lineHeight: 20 },
 });

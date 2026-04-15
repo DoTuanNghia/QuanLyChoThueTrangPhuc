@@ -16,7 +16,7 @@ export interface KhachHang {
 
 export interface NhanVien {
   id: number;
-  ten: string;
+  username: string; // Dùng username từ ThanhVien (không còn trường "ten")
   ngaySinh?: string;
   diaChi?: string;
   soDienThoai?: string;
@@ -35,8 +35,8 @@ export interface ChiTietThue {
   soLuong: number;
   thanhTien: number;
   trangPhuc: TrangPhuc;
-  daTra: boolean;
-  soLuongDaTra: number;
+  trangPhucId: number;    // ID trang phục, dùng trong request trả
+  // daTra và soLuongDaTra đã bị xóa khỏi backend ChiTietThueDTO
 }
 
 export interface PhieuThue {
@@ -56,7 +56,7 @@ export interface LoiPhatRequest {
 }
 
 export interface ChiTietTraRequest {
-  chiTietThueId: number;
+  trangPhucId: number;  // Đã đổi từ chiTietThueId → trangPhucId
   soLuongTra: number;
   danhSachLoi: LoiPhatRequest[];
 }

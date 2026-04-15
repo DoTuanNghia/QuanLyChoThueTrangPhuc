@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Alert, ActivityIndicator, SafeAreaView,
+  Alert, ActivityIndicator,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -13,9 +13,36 @@ type Props = {
   route: RouteProp<RootStackParamList, 'PreviewHoaDon'>;
 };
 
+function InfoRow({ icon, label, value, highlight }: { icon: string; label: string; value: string; highlight?: boolean }) {
+  return (
+    <View style={ir.row}>
+      <Text style={ir.icon}>{icon}</Text>
+      <Text style={ir.label}>{label}</Text>
+      <Text style={[ir.value, highlight && { color: '#00897B', fontWeight: '700' }]}>{value}</Text>
+    </View>
+  );
+}
+
+function SumRow({ label, value, bold, warning, green }: {
+  label: string; value: string; bold?: boolean; warning?: boolean; green?: boolean;
+}) {
+  return (
+    <View style={sr.row}>
+      <Text style={[sr.label, bold && { fontWeight: '700', color: '#1B2A4A' }]}>{label}</Text>
+      <Text style={[
+        sr.value,
+        bold && { fontWeight: '800', fontSize: 16 },
+        warning && { color: '#E53935' },
+        green && { color: '#00897B' },
+      ]}>{value}</Text>
+    </View>
+  );
+}
+
 export default function PreviewHoaDonScreen({ navigation, route }: Props) {
   const { request, hoaDon } = route.params;
   const [loading, setLoading] = useState(false);
+
   const fmtVND = (v: number) => v?.toLocaleString('vi-VN') + 'đ';
   const soTienConLai = hoaDon.soTienConLai ?? (hoaDon.tongThanhToan - hoaDon.tienCoc);
   const khachTraThem = soTienConLai > 0;
@@ -24,148 +51,314 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
     try {
       setLoading(true);
       const result = await tratrangphucApi.xacNhanTra(request);
-      navigation.replace('KetQua', { success: result.success, message: result.message, phieuTraId: result.phieuTraId });
+      navigation.replace('KetQua', {
+        success: result.success,
+        message: result.message,
+        phieuTraId: result.phieuTraId,
+      });
     } catch (e: any) { Alert.alert('Lỗi', e.message); }
     finally { setLoading(false); }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Header */}
-        <View style={styles.invHeader}>
-          <Text style={styles.invEmoji}>🧾</Text>
-          <Text style={styles.invTitle}>HÓA ĐƠN TRẢ TRANG PHỤC</Text>
-          <Text style={styles.invDate}>Ngày trả: {hoaDon.ngayTra}</Text>
-        </View>
+    <View style={styles.page}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.centerCol}>
 
-        {/* KH info */}
-        <View style={styles.card}>
-          <Text style={styles.cardLabel}>THÔNG TIN KHÁCH HÀNG</Text>
-          <InfoRow icon="👤" label="Tên KH" value={hoaDon.tenKhachHang} />
-          <InfoRow icon="📞" label="SĐT" value={hoaDon.soDienThoaiKH || '—'} />
-          <InfoRow icon="📍" label="Địa chỉ" value={hoaDon.diaChiKH || '—'} />
-          <InfoRow icon="📋" label="Phiếu thuê" value={`#${hoaDon.phieuThueId} (${hoaDon.ngayThue})`} />
-          <InfoRow icon="👨‍💼" label="Nhân viên" value={hoaDon.tenNhanVien} />
-          <InfoRow icon="💰" label="Tiền đặt cọc" value={fmtVND(hoaDon.tienCoc)} highlight />
-        </View>
-
-        {/* Chi tiết */}
-        <View style={styles.card}>
-          <Text style={styles.cardLabel}>CHI TIẾT TRANG PHỤC TRẢ</Text>
-          {hoaDon.danhSachChiTiet.map((item, idx) => (
-            <View key={idx} style={styles.itemBox}>
-              <View style={styles.itemHdr}>
-                <View style={styles.itemIdx}><Text style={styles.idxText}>{idx + 1}</Text></View>
-                <Text style={styles.itemName}>{item.tenTrangPhuc}</Text>
-              </View>
-              <View style={styles.detailGrid}>
-                <DCell label="Số lượng" value={`${item.soLuong} bộ`} />
-                <DCell label="Đơn giá" value={fmtVND(item.donGia)} />
-                <DCell label="Số ngày" value={`${item.soNgayThue} ngày`} />
-                <DCell label="Tiền thuê" value={fmtVND(item.tienThue)} accent />
-              </View>
-              {item.danhSachLoi && item.danhSachLoi.length > 0 && (
-                <View style={styles.loiSec}>
-                  <Text style={styles.loiSecTitle}>⚠️ Lỗi hỏng</Text>
-                  {item.danhSachLoi.map((l, li) => (
-                    <View key={li} style={styles.loiRow}>
-                      <Text style={styles.loiName}>• {l.tenLoi} (x{l.soLuong})</Text>
-                      <Text style={styles.loiPhat}>{fmtVND(l.tienPhat)}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-              <View style={styles.subTotals}>
-                <View style={styles.subRow}><Text style={styles.subLabel}>Tiền thuê</Text><Text style={styles.subVal}>{fmtVND(item.tienThue)}</Text></View>
-                {item.tienPhat > 0 && <View style={styles.subRow}><Text style={styles.subLabel}>Tiền phạt</Text><Text style={[styles.subVal, { color: '#E53935' }]}>{fmtVND(item.tienPhat)}</Text></View>}
-                <View style={styles.itemTotalRow}><Text style={styles.itemTotalLabel}>Tổng cộng</Text><Text style={styles.itemTotalVal}>{fmtVND(item.tongCong)}</Text></View>
-              </View>
+          {/* Invoice Header */}
+          <View style={styles.invoiceHeader}>
+            <View style={styles.invoiceLogoBox}>
+              <Text style={styles.invoiceLogo}>🧾</Text>
             </View>
-          ))}
-        </View>
-
-        {/* Tổng kết */}
-        <View style={styles.card}>
-          <Text style={styles.cardLabel}>TỔNG KẾT THANH TOÁN</Text>
-          <SumRow label="Tổng tiền thuê" value={fmtVND(hoaDon.tongTienThue)} />
-          {hoaDon.tongTienPhat > 0 && <SumRow label="Tổng tiền phạt" value={fmtVND(hoaDon.tongTienPhat)} warning />}
-          <View style={styles.sumDivider} />
-          <SumRow label="Tổng thanh toán" value={fmtVND(hoaDon.tongThanhToan)} bold />
-          <SumRow label="Tiền đã đặt cọc" value={`- ${fmtVND(hoaDon.tienCoc)}`} green />
-          <View style={styles.sumDivider} />
-          <View style={[styles.grandBox, { backgroundColor: khachTraThem ? '#FFF3F3' : '#E8F5E9' }]}>
-            <View>
-              <Text style={styles.grandLabel}>{khachTraThem ? 'KHÁCH HÀNG CẦN TRẢ' : 'TRẢ LẠI KHÁCH HÀNG'}</Text>
-              <Text style={styles.grandSub}>{khachTraThem ? 'Số tiền KH phải trả thêm' : 'Số tiền hoàn lại cho KH'}</Text>
+            <View style={styles.invoiceTitleGroup}>
+              <Text style={styles.invoiceTitle}>HÓA ĐƠN TRẢ TRANG PHỤC</Text>
+              <Text style={styles.invoiceDate}>Ngày trả: {hoaDon.ngayTra}</Text>
             </View>
-            <Text style={[styles.grandVal, { color: khachTraThem ? '#E53935' : '#43A047' }]}>{fmtVND(Math.abs(soTienConLai))}</Text>
+            <View style={styles.invoiceIdBox}>
+              <Text style={styles.invoiceIdLabel}>Phiếu thuê</Text>
+              <Text style={styles.invoiceId}>#{hoaDon.phieuThueId}</Text>
+            </View>
           </View>
+
+          {/* Two-column layout on wide screens */}
+          <View style={styles.twoCol}>
+            {/* Left: KH info */}
+            <View style={[styles.card, styles.colLeft]}>
+              <Text style={styles.cardLabel}>THÔNG TIN KHÁCH HÀNG</Text>
+              <InfoRow icon="👤" label="Tên KH" value={hoaDon.tenKhachHang} />
+              <InfoRow icon="📞" label="SĐT" value={hoaDon.soDienThoaiKH || '—'} />
+              <InfoRow icon="📍" label="Địa chỉ" value={hoaDon.diaChiKH || '—'} />
+              <InfoRow icon="📋" label="Ngày thuê" value={hoaDon.ngayThue} />
+              <InfoRow icon="👨‍💼" label="Nhân viên" value={hoaDon.tenNhanVien} />
+              <View style={styles.depositBox}>
+                <Text style={styles.depositLabel}>💰 Tiền đặt cọc</Text>
+                <Text style={styles.depositVal}>{fmtVND(hoaDon.tienCoc)}</Text>
+              </View>
+            </View>
+
+            {/* Right: Summary */}
+            <View style={[styles.card, styles.colRight]}>
+              <Text style={styles.cardLabel}>TỔNG KẾT THANH TOÁN</Text>
+              <SumRow label="Tổng tiền thuê" value={fmtVND(hoaDon.tongTienThue)} />
+              {hoaDon.tongTienPhat > 0 && (
+                <SumRow label="Tổng tiền phạt" value={fmtVND(hoaDon.tongTienPhat)} warning />
+              )}
+              <View style={styles.sumDivider} />
+              <SumRow label="Tổng thanh toán" value={fmtVND(hoaDon.tongThanhToan)} bold />
+              <SumRow label="Tiền đã đặt cọc" value={`- ${fmtVND(hoaDon.tienCoc)}`} green />
+              <View style={styles.sumDivider} />
+
+              <View style={[styles.grandBox, { backgroundColor: khachTraThem ? '#FFF3F3' : '#E8F5E9' }]}>
+                <View>
+                  <Text style={styles.grandLabel}>
+                    {khachTraThem ? '⬆️ KHÁCH CẦN TRẢ THÊM' : '⬇️ TRẢ LẠI KHÁCH HÀNG'}
+                  </Text>
+                  <Text style={styles.grandSub}>
+                    {khachTraThem ? 'Số tiền KH phải thanh toán thêm' : 'Số tiền hoàn lại cho KH'}
+                  </Text>
+                </View>
+                <Text style={[styles.grandVal, { color: khachTraThem ? '#E53935' : '#00897B' }]}>
+                  {fmtVND(Math.abs(soTienConLai))}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Chi tiết trang phục */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>CHI TIẾT TRANG PHỤC TRẢ</Text>
+            <View style={styles.itemsList}>
+              {hoaDon.danhSachChiTiet.map((item, idx) => (
+                <View key={idx} style={styles.itemBox}>
+                  <View style={styles.itemHdr}>
+                    <View style={styles.itemIdx}>
+                      <Text style={styles.idxText}>{idx + 1}</Text>
+                    </View>
+                    <Text style={styles.itemName}>{item.tenTrangPhuc}</Text>
+                    <Text style={styles.itemTotal}>{fmtVND(item.tongCong)}</Text>
+                  </View>
+
+                  <View style={styles.itemDetails}>
+                    <View style={styles.detailGrid}>
+                      {[
+                        { label: 'Số lượng', val: `${item.soLuong} bộ` },
+                        { label: 'Đơn giá', val: fmtVND(item.donGia) },
+                        { label: 'Số ngày', val: `${item.soNgayThue} ngày` },
+                        { label: 'Tiền thuê', val: fmtVND(item.tienThue), accent: true },
+                      ].map((d) => (
+                        <View key={d.label} style={styles.detailCell}>
+                          <Text style={styles.detailLabel}>{d.label}</Text>
+                          <Text style={[styles.detailVal, d.accent && { color: '#00897B' }]}>{d.val}</Text>
+                        </View>
+                      ))}
+                    </View>
+
+                    {item.danhSachLoi && item.danhSachLoi.length > 0 && (
+                      <View style={styles.loiSec}>
+                        <Text style={styles.loiSecTitle}>⚠️ Lỗi hỏng</Text>
+                        {item.danhSachLoi.map((l, li) => (
+                          <View key={li} style={styles.loiRow}>
+                            <Text style={styles.loiName}>• {l.tenLoi} (×{l.soLuong})</Text>
+                            <Text style={styles.loiPhat}>{fmtVND(l.tienPhat)}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+
+                    <View style={styles.subTotals}>
+                      <View style={styles.subRow}>
+                        <Text style={styles.subLabel}>Tiền thuê</Text>
+                        <Text style={styles.subVal}>{fmtVND(item.tienThue)}</Text>
+                      </View>
+                      {item.tienPhat > 0 && (
+                        <View style={styles.subRow}>
+                          <Text style={styles.subLabel}>Tiền phạt</Text>
+                          <Text style={[styles.subVal, { color: '#E53935' }]}>{fmtVND(item.tienPhat)}</Text>
+                        </View>
+                      )}
+                      <View style={styles.itemTotalRow}>
+                        <Text style={styles.itemTotalLabel}>Tổng cộng</Text>
+                        <Text style={styles.itemTotalVal}>{fmtVND(item.tongCong)}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* Spacer */}
+          <View style={{ height: 100 }} />
         </View>
       </ScrollView>
 
-      {/* Bottom confirm */}
+      {/* Confirm bar */}
       <View style={styles.confirmBar}>
-        <View><Text style={styles.confirmLabel}>{khachTraThem ? 'KH cần trả' : 'Trả lại KH'}</Text>
-          <Text style={[styles.confirmAmt, { color: khachTraThem ? '#E53935' : '#43A047' }]}>{fmtVND(Math.abs(soTienConLai))}</Text></View>
-        <TouchableOpacity style={[styles.confirmBtn, loading && { opacity: 0.6 }]} onPress={handleXacNhan} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.confirmBtnText}>✅ Xác nhận trả</Text>}
-        </TouchableOpacity>
+        <View style={styles.confirmBarInner}>
+          <View style={styles.confirmInfo}>
+            <Text style={styles.confirmInfoLabel}>
+              {khachTraThem ? 'Khách cần trả thêm' : 'Hoàn lại khách'}
+            </Text>
+            <Text style={[styles.confirmAmt, { color: khachTraThem ? '#E53935' : '#00897B' }]}>
+              {fmtVND(Math.abs(soTienConLai))}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.confirmBtn, loading && { opacity: 0.6 }]}
+            onPress={handleXacNhan}
+            disabled={loading}
+          >
+            {loading
+              ? <ActivityIndicator color="#fff" />
+              : <Text style={styles.confirmBtnText}>✅ Xác nhận trả trang phục</Text>
+            }
+          </TouchableOpacity>
+        </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
-function InfoRow({ icon, label, value, highlight }: { icon: string; label: string; value: string; highlight?: boolean }) {
-  return (<View style={ir.row}><Text style={ir.icon}>{icon}</Text><Text style={ir.label}>{label}</Text><Text style={[ir.value, highlight && { color: '#00897B', fontWeight: '700' }]}>{value}</Text></View>);
-}
-function DCell({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
-  return (<View style={dc.cell}><Text style={dc.label}>{label}</Text><Text style={[dc.value, accent && { color: '#00897B' }]}>{value}</Text></View>);
-}
-function SumRow({ label, value, bold, warning, green }: { label: string; value: string; bold?: boolean; warning?: boolean; green?: boolean }) {
-  return (<View style={sr.row}><Text style={[sr.label, bold && { fontWeight: '700', color: '#1B2A4A' }]}>{label}</Text>
-    <Text style={[sr.value, bold && { fontWeight: '800', fontSize: 16 }, warning && { color: '#E53935' }, green && { color: '#43A047' }]}>{value}</Text></View>);
-}
+const ir = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: '#F4F6FB' },
+  icon: { fontSize: 15, marginRight: 10, width: 22 },
+  label: { fontSize: 13, color: '#8892A6', flex: 1, fontWeight: '500' },
+  value: { fontSize: 13, fontWeight: '600', color: '#1B2A4A', textAlign: 'right', flex: 1 },
+});
 
-const ir = StyleSheet.create({ row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 }, icon: { fontSize: 14, marginRight: 8, width: 20 }, label: { fontSize: 13, color: '#8892A6', flex: 1, fontWeight: '500' }, value: { fontSize: 13, fontWeight: '600', color: '#1B2A4A' } });
-const dc = StyleSheet.create({ cell: { width: '48%', marginBottom: 10 }, label: { fontSize: 10, color: '#8892A6', fontWeight: '500', textTransform: 'uppercase', letterSpacing: 0.3, marginBottom: 3 }, value: { fontSize: 13, fontWeight: '700', color: '#1B2A4A' } });
-const sr = StyleSheet.create({ row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 7 }, label: { fontSize: 13, color: '#8892A6' }, value: { fontSize: 13, fontWeight: '600', color: '#1B2A4A' } });
+const sr = StyleSheet.create({
+  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8 },
+  label: { fontSize: 13, color: '#8892A6' },
+  value: { fontSize: 13, fontWeight: '600', color: '#1B2A4A' },
+});
+
+const ACCENT = '#5B6FE6';
+const MAX_W = 1000;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F6FA' },
-  content: { padding: 16, gap: 14, paddingBottom: 110 },
-  invHeader: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 22, alignItems: 'center', shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 },
-  invEmoji: { fontSize: 32, marginBottom: 8 },
-  invTitle: { fontWeight: '800', fontSize: 16, color: '#1B2A4A', letterSpacing: 0.3 },
-  invDate: { color: '#8892A6', fontSize: 13, marginTop: 4 },
-  card: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
-  cardLabel: { fontSize: 11, fontWeight: '700', color: '#8892A6', letterSpacing: 1, marginBottom: 12 },
-  itemBox: { borderWidth: 1, borderColor: '#F0F1F5', borderRadius: 12, marginBottom: 10, overflow: 'hidden' },
-  itemHdr: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#F8F9FC', gap: 10 },
-  itemIdx: { width: 26, height: 26, borderRadius: 7, backgroundColor: '#EEF0FB', alignItems: 'center', justifyContent: 'center' },
-  idxText: { color: '#5B6FE6', fontWeight: '800', fontSize: 12 },
+  page: { flex: 1, backgroundColor: '#F4F6FB' },
+  scroll: { flex: 1 },
+  scrollContent: { alignItems: 'center', paddingBottom: 24 },
+  centerCol: { width: '100%', maxWidth: MAX_W, paddingHorizontal: 24, paddingTop: 24 },
+
+  invoiceHeader: {
+    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 24,
+    flexDirection: 'row', alignItems: 'center', gap: 20,
+    marginBottom: 16,
+    shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06, shadowRadius: 12, elevation: 3,
+    borderWidth: 1, borderColor: '#ECEEF4',
+  },
+  invoiceLogoBox: {
+    width: 56, height: 56, borderRadius: 16, backgroundColor: '#EEF0FB',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  invoiceLogo: { fontSize: 28 },
+  invoiceTitleGroup: { flex: 1 },
+  invoiceTitle: { fontSize: 17, fontWeight: '800', color: '#1B2A4A', letterSpacing: 0.3 },
+  invoiceDate: { fontSize: 13, color: '#8892A6', marginTop: 4 },
+  invoiceIdBox: { alignItems: 'flex-end' },
+  invoiceIdLabel: { fontSize: 10, color: '#8892A6', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  invoiceId: { fontSize: 22, fontWeight: '900', color: ACCENT },
+
+  twoCol: { flexDirection: 'row', gap: 16, marginBottom: 0 },
+  colLeft: { flex: 1 },
+  colRight: { flex: 1 },
+
+  card: {
+    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, marginBottom: 16,
+    shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 10, elevation: 2,
+    borderWidth: 1, borderColor: '#ECEEF4',
+  },
+  cardLabel: {
+    fontSize: 10, fontWeight: '800', color: '#8892A6',
+    letterSpacing: 1.2, marginBottom: 14, textTransform: 'uppercase',
+  },
+
+  depositBox: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    marginTop: 12, backgroundColor: '#F0FBF7', borderRadius: 10, padding: 12,
+  },
+  depositLabel: { fontSize: 13, fontWeight: '600', color: '#00897B' },
+  depositVal: { fontSize: 16, fontWeight: '800', color: '#00897B' },
+
+  sumDivider: { height: 1, backgroundColor: '#F0F1F5', marginVertical: 6 },
+  grandBox: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    borderRadius: 12, padding: 16, marginTop: 10,
+  },
+  grandLabel: { fontSize: 11, fontWeight: '800', color: '#1B2A4A', letterSpacing: 0.3 },
+  grandSub: { fontSize: 11, color: '#8892A6', marginTop: 3 },
+  grandVal: { fontSize: 26, fontWeight: '900' },
+
+  itemsList: { gap: 12 },
+  itemBox: {
+    borderWidth: 1.5, borderColor: '#ECEEF4', borderRadius: 12, overflow: 'hidden',
+  },
+  itemHdr: {
+    flexDirection: 'row', alignItems: 'center', padding: 14,
+    backgroundColor: '#F8F9FC', gap: 12,
+  },
+  itemIdx: {
+    width: 28, height: 28, borderRadius: 8, backgroundColor: '#EEF0FB',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  idxText: { color: ACCENT, fontWeight: '800', fontSize: 13 },
   itemName: { fontSize: 14, fontWeight: '700', color: '#1B2A4A', flex: 1 },
-  detailGrid: { flexDirection: 'row', flexWrap: 'wrap', padding: 12 },
-  loiSec: { marginHorizontal: 12, marginBottom: 10, backgroundColor: '#FFF8F8', borderRadius: 8, padding: 10, borderWidth: 1, borderColor: '#FFE0E0' },
-  loiSecTitle: { fontSize: 11, fontWeight: '700', color: '#E53935', marginBottom: 6 },
+  itemTotal: { fontSize: 15, fontWeight: '800', color: ACCENT },
+
+  itemDetails: { padding: 16 },
+  detailGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 12 },
+  detailCell: { width: '47%' },
+  detailLabel: {
+    fontSize: 10, color: '#8892A6', fontWeight: '600',
+    textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 4,
+  },
+  detailVal: { fontSize: 14, fontWeight: '700', color: '#1B2A4A' },
+
+  loiSec: {
+    backgroundColor: '#FFF8F8', borderRadius: 10, padding: 12,
+    marginBottom: 12, borderWidth: 1, borderColor: '#FFE4E4',
+  },
+  loiSecTitle: { fontSize: 11, fontWeight: '700', color: '#E53935', marginBottom: 8 },
   loiRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 },
   loiName: { fontSize: 12, color: '#5A6478' },
   loiPhat: { fontSize: 12, color: '#E53935', fontWeight: '600' },
-  subTotals: { borderTopWidth: 1, borderTopColor: '#F0F1F5', padding: 12 },
-  subRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 2 },
+
+  subTotals: { borderTopWidth: 1, borderTopColor: '#F0F1F5', paddingTop: 12 },
+  subRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 },
   subLabel: { fontSize: 12, color: '#8892A6' },
   subVal: { fontSize: 12, fontWeight: '600', color: '#1B2A4A' },
-  itemTotalRow: { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1.5, borderTopColor: '#5B6FE6', marginTop: 6, paddingTop: 6 },
+  itemTotalRow: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    borderTopWidth: 2, borderTopColor: ACCENT + '40',
+    marginTop: 8, paddingTop: 8,
+  },
   itemTotalLabel: { fontSize: 13, fontWeight: '700', color: '#1B2A4A' },
-  itemTotalVal: { fontSize: 14, fontWeight: '800', color: '#5B6FE6' },
-  sumDivider: { height: 1, backgroundColor: '#F0F1F5', marginVertical: 4 },
-  grandBox: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderRadius: 12, padding: 16, marginTop: 8 },
-  grandLabel: { fontSize: 12, fontWeight: '800', color: '#1B2A4A', letterSpacing: 0.3 },
-  grandSub: { fontSize: 11, color: '#8892A6', marginTop: 2 },
-  grandVal: { fontSize: 24, fontWeight: '900' },
-  confirmBar: { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#F0F1F5', padding: 14, paddingBottom: 18, gap: 14 },
-  confirmLabel: { fontSize: 11, color: '#8892A6', fontWeight: '500' },
-  confirmAmt: { fontSize: 18, fontWeight: '800', marginTop: 1 },
-  confirmBtn: { flex: 1, backgroundColor: '#5B6FE6', paddingVertical: 13, borderRadius: 12, alignItems: 'center', shadowColor: '#5B6FE6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 10, elevation: 6 },
+  itemTotalVal: { fontSize: 15, fontWeight: '900', color: ACCENT },
+
+  // Confirm bar
+  confirmBar: {
+    borderTopWidth: 1, borderTopColor: '#ECEEF4',
+    backgroundColor: '#FFFFFF', paddingVertical: 16, paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.06, shadowRadius: 12, elevation: 10,
+  },
+  confirmBarInner: {
+    width: '100%', maxWidth: MAX_W,
+    flexDirection: 'row', alignItems: 'center', gap: 20,
+  },
+  confirmInfo: { flex: 1 },
+  confirmInfoLabel: { fontSize: 12, color: '#8892A6', fontWeight: '500' },
+  confirmAmt: { fontSize: 22, fontWeight: '900', marginTop: 2 },
+  confirmBtn: {
+    backgroundColor: ACCENT, paddingVertical: 14, paddingHorizontal: 28,
+    borderRadius: 12, alignItems: 'center',
+    shadowColor: ACCENT, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25, shadowRadius: 10, elevation: 6,
+    minWidth: 220,
+  },
   confirmBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
 });
