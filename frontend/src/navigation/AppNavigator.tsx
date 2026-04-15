@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 
+import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import DanhSachLoiScreen from '../screens/loi/DanhSachLoiScreen';
 import ThemSuaLoiScreen from '../screens/loi/ThemSuaLoiScreen';
@@ -18,7 +19,7 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Home"
+        initialRouteName="Login"
         screenOptions={{
           headerStyle: { backgroundColor: '#FFFFFF' },
           headerTintColor: '#1B2A4A',
@@ -27,6 +28,7 @@ export default function AppNavigator() {
           contentStyle: { backgroundColor: '#F5F6FA' },
         }}
       >
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="DanhSachLoi" component={DanhSachLoiScreen} options={{ title: 'Quản Lý Lỗi Hỏng Phạt' }} />
         <Stack.Screen name="ThemSuaLoi" component={ThemSuaLoiScreen} options={({ route }) => ({

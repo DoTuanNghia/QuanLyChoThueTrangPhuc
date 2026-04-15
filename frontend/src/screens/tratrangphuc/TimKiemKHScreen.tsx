@@ -4,15 +4,20 @@ import {
   StyleSheet, Alert, ActivityIndicator,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList, KhachHang } from '../../types';
 import { tratrangphucApi } from '../../api/tratrangphucApi';
 
-type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'TimKiemKH'> };
+type Props = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'TimKiemKH'>;
+  route: RouteProp<RootStackParamList, 'TimKiemKH'>;
+};
 
 const AVATAR_COLORS = ['#5B6FE6', '#00B894', '#E17055', '#0984E3', '#D63031', '#E84393', '#00CEC9', '#6C5CE7'];
 const getColor = (name: string) => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
 
-export default function TimKiemKHScreen({ navigation }: Props) {
+export default function TimKiemKHScreen({ navigation, route }: Props) {
+  const { nhanVien } = route.params;
   const [tuKhoa, setTuKhoa] = useState('');
   const [danhSach, setDanhSach] = useState<KhachHang[]>([]);
   const [loading, setLoading] = useState(false);
@@ -32,7 +37,7 @@ export default function TimKiemKHScreen({ navigation }: Props) {
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() => navigation.navigate('DanhSachPhieuThue', { khachHang: item })}
+        onPress={() => navigation.navigate('DanhSachPhieuThue', { khachHang: item, nhanVien })}
         activeOpacity={0.75}
       >
         <View style={[styles.avatar, { backgroundColor: color + '18' }]}>

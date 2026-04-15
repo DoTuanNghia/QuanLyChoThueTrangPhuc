@@ -105,12 +105,13 @@ export interface HoaDonTra {
 
 // Navigation param types
 export type RootStackParamList = {
-  Home: undefined;
+  Login: undefined;
+  Home: { nhanVien: NhanVien };
   DanhSachLoi: undefined;
   ThemSuaLoi: { loi?: Loi };
-  TimKiemKH: undefined;
-  DanhSachPhieuThue: { khachHang: KhachHang };
-  ChonTra: { phieuThue: PhieuThue; khachHang: KhachHang };
+  TimKiemKH: { nhanVien: NhanVien };
+  DanhSachPhieuThue: { khachHang: KhachHang; nhanVien: NhanVien };
+  ChonTra: { phieuThue: PhieuThue; khachHang: KhachHang; nhanVien: NhanVien };
   PreviewHoaDon: { request: PhieuTraRequest; hoaDon: HoaDonTra };
   KetQua: { success: boolean; message: string; phieuTraId?: number };
 };

@@ -28,11 +28,9 @@ interface ItemState {
 }
 
 export default function ChonTraScreen({ navigation, route }: Props) {
-  const { phieuThue, khachHang } = route.params;
+  const { phieuThue, khachHang, nhanVien } = route.params;
   const [items, setItems] = useState<ItemState[]>([]);
   const [danhSachLoi, setDanhSachLoi] = useState<Loi[]>([]);
-  const [nhanVienList, setNhanVienList] = useState<any[]>([]);
-  const [nhanVienId, setNhanVienId] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -40,14 +38,11 @@ export default function ChonTraScreen({ navigation, route }: Props) {
   const [tempLoiSel, setTempLoiSel] = useState<Map<number, number>>(new Map());
 
   useEffect(() => {
-    Promise.all([loiApi.layTatCa(), tratrangphucApi.layNhanVien()])
-      .then(([lois, nvList]) => {
+    Promise.all([loiApi.layTatCa(), tratrangphucApi.layPhieuThueChuaTra(khachHang.id)])
+      .then(([lois]) => {
         setDanhSachLoi(lois);
-        setNhanVienList(nvList);
-        if (nvList.length > 0) setNhanVienId(nvList[0].id);
 
         // Backend trả về danhSachChuaTra (đã lọc sẵn chưa trả)
-        // Không cần filter daTra nữa vì field này đã bị xóa khỏi ChiTietThueDTO
         const rawList = (phieuThue as any).danhSachChuaTra || phieuThue.chiTietThueList || [];
         setItems(rawList.map((c: any) => ({
           chiTietThue: {
@@ -61,7 +56,7 @@ export default function ChonTraScreen({ navigation, route }: Props) {
               soLuong: 0,
               soLuongThue: 0,
             },
-            trangPhucId: c.trangPhucId,    // dùng trong request trả
+            trangPhucId: c.trangPhucId,
             tenTrangPhuc: c.tenTrangPhuc,
             donGia: c.donGia,
             ngayThue: c.ngayThue,
@@ -100,12 +95,11 @@ export default function ChonTraScreen({ navigation, route }: Props) {
   const handleXemHoaDon = async () => {
     const selected = items.filter((i) => i.duocChon);
     if (selected.length === 0) { Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 trang phục'); return; }
-    if (nhanVienId === 0) { Alert.alert('Lỗi', 'Vui lòng chọn nhân viên'); return; }
     try {
       setSubmitting(true);
       const request = {
         phieuThueId: phieuThue.id,
-        nhanVienId,
+        nhanVienId: nhanVien.id,
         danhSachTra: selected.map((i) => ({
           trangPhucId: (i.chiTietThue as any).trangPhucId,  // Đổi từ chiTietThueId → trangPhucId
           soLuongTra: parseInt(i.soLuongTra) || 1,
@@ -169,24 +163,13 @@ export default function ChonTraScreen({ navigation, route }: Props) {
               </View>
             </View>
 
-            {/* Nhân viên card */}
+            {/* Nhân viên card - hiển thị nhân viên đang đăng nhập */}
             <View style={[styles.card, styles.nvCard]}>
               <Text style={styles.cardSectionLabel}>👨‍💼 Nhân viên xử lý</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
-                {nhanVienList.map((nv) => (
-                  <TouchableOpacity
-                    key={nv.id}
-                    style={[styles.nvChip, nv.id === nhanVienId && styles.nvChipActive]}
-                    onPress={() => setNhanVienId(nv.id)}
-                  >
-                    <View style={[styles.nvDot, nv.id === nhanVienId && styles.nvDotActive]} />
-                    {/* Dùng username thay cho ten (NhanVien không còn trường ten) */}
-                    <Text style={[styles.nvText, nv.id === nhanVienId && styles.nvTextActive]}>
-                      {nv.username}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+              <View style={[styles.nvChip, styles.nvChipActive]}>
+                <View style={styles.nvDotActive} />
+                <Text style={styles.nvTextActive}>{nhanVien.username}</Text>
+              </View>
             </View>
           </View>
 

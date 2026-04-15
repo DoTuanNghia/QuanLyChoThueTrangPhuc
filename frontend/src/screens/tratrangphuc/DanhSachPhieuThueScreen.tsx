@@ -14,7 +14,7 @@ type Props = {
 };
 
 export default function DanhSachPhieuThueScreen({ navigation, route }: Props) {
-  const { khachHang } = route.params;
+  const { khachHang, nhanVien } = route.params;
   const [phieuThueList, setPhieuThueList] = useState<PhieuThue[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,7 +39,7 @@ export default function DanhSachPhieuThueScreen({ navigation, route }: Props) {
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() => navigation.navigate('ChonTra', { phieuThue: item, khachHang })}
+        onPress={() => navigation.navigate('ChonTra', { phieuThue: item, khachHang, nhanVien })}
         activeOpacity={0.75}
       >
         <View style={styles.cardLeft}>

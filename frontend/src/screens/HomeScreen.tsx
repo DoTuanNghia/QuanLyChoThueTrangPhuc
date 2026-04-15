@@ -3,11 +3,16 @@ import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, Animated,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types';
 
-type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'Home'> };
+type Props = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
+  route: RouteProp<RootStackParamList, 'Home'>;
+};
 
-export default function HomeScreen({ navigation }: Props) {
+export default function HomeScreen({ navigation, route }: Props) {
+  const { nhanVien } = route.params;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(24)).current;
 
@@ -26,6 +31,9 @@ export default function HomeScreen({ navigation }: Props) {
         <Text style={styles.logoEmoji}>🎭</Text>
         <Text style={styles.title}>Quản Lý</Text>
         <Text style={styles.subtitle}>Cho Thuê Trang Phục</Text>
+        <View style={styles.welcomeBadge}>
+          <Text style={styles.welcomeText}>👋 Xin chào, <Text style={styles.welcomeName}>{nhanVien.username}</Text></Text>
+        </View>
       </Animated.View>
 
       <Animated.View style={[styles.menuContainer, {
@@ -51,7 +59,7 @@ export default function HomeScreen({ navigation }: Props) {
 
         <TouchableOpacity
           style={styles.card}
-          onPress={() => navigation.navigate('TimKiemKH')}
+          onPress={() => navigation.navigate('TimKiemKH', { nhanVien })}
           activeOpacity={0.7}
         >
           <View style={[styles.cardIconBox, { backgroundColor: '#EDE7F6' }]}>
@@ -78,6 +86,12 @@ const styles = StyleSheet.create({
   logoEmoji: { fontSize: 48, marginBottom: 12 },
   title: { fontSize: 32, fontWeight: '900', color: '#1B2A4A' },
   subtitle: { fontSize: 15, color: '#8892A6', marginTop: 4, fontWeight: '500' },
+  welcomeBadge: {
+    marginTop: 14, backgroundColor: '#EEF0FB',
+    paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
+  },
+  welcomeText: { fontSize: 13, color: '#5B6FE6', fontWeight: '500' },
+  welcomeName: { fontWeight: '800' },
 
   menuContainer: { flex: 1, paddingHorizontal: 20, gap: 14 },
   card: {
