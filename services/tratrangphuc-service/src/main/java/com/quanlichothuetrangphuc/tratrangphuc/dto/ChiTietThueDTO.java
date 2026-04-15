@@ -15,6 +15,6 @@ public class ChiTietThueDTO {
     private String ngayThue;         // "dd/MM/yyyy"
     private float thanhTien;
     private long soNgayThue;         // số ngày tính đến hôm nay
-    private float tienThueDenNay;    // = donGia * soNgayThue
-    private boolean daTra;
+    private float tienThueDenNay;    // = donGia * soNgayThue * soLuong
+    private int trangPhucId;
 }

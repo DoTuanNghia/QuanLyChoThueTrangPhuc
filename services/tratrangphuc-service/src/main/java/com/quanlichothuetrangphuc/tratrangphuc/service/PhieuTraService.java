@@ -12,7 +12,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class PhieuTraService {
 
     private final PhieuTraRepository phieuTraRepository;
     private final PhieuThueRepository phieuThueRepository;
-    private final ChiTietThueRepository chiTietThueRepository;
+    private final TrangPhucRepository trangPhucRepository;
     private final NhanVienRepository nhanVienRepository;
     private final LoiClient loiClient;
 
@@ -42,19 +44,19 @@ public class PhieuTraService {
         hoadon.setNgayThue(phieuThue.getNgayLap().format(FMT));
         hoadon.setTienCoc(phieuThue.getTienCoc());
         hoadon.setNgayTra(homNay.format(FMT));
-        hoadon.setTenNhanVien(nhanVien.getTen());
+        hoadon.setTenNhanVien(nhanVien.getUsername());
 
         List<HoaDonChiTietDTO> chiTietList = new ArrayList<>();
         float tongTienThue = 0, tongTienPhat = 0;
 
         for (ChiTietTraRequestDTO req : request.getDanhSachTra()) {
-            ChiTietThue ctt = chiTietThueRepository.findById(req.getChiTietThueId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chi tiết thuê id=" + req.getChiTietThueId()));
+            TrangPhuc trangPhuc = trangPhucRepository.findById(req.getTrangPhucId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy trang phục id=" + req.getTrangPhucId()));
 
             long soNgay = ChronoUnit.DAYS.between(phieuThue.getNgayLap(), homNay);
             if (soNgay < 1) soNgay = 1;
 
-            float tienThue = ctt.getTrangPhuc().getDonGia() * soNgay * req.getSoLuongTra();
+            float tienThue = trangPhuc.getDonGia() * soNgay * req.getSoLuongTra();
 
             // Tinh tong tien phat tu nhieu loi
             List<ChiTietLoiViewDTO> loiViews = new ArrayList<>();
@@ -66,13 +68,20 @@ public class PhieuTraService {
                 }
                 float phat = loi.getMucPhat() * loiReq.getSoLuong();
                 tienPhatItem += phat;
-                loiViews.add(new ChiTietLoiViewDTO(loi.getTenLoi(), loi.getMucPhat(), loiReq.getSoLuong(), phat));
+
+                ChiTietLoiViewDTO view = new ChiTietLoiViewDTO();
+                view.setTenLoi(loi.getTenLoi());
+                view.setMucPhat(loi.getMucPhat());
+                view.setTongLoi(loiReq.getSoLuong());
+                view.setTienPhat(phat);
+                view.setLoiId(loiReq.getLoiId());
+                loiViews.add(view);
             }
 
             HoaDonChiTietDTO chiTiet = new HoaDonChiTietDTO();
-            chiTiet.setTenTrangPhuc(ctt.getTrangPhuc().getTen());
+            chiTiet.setTenTrangPhuc(trangPhuc.getTen());
             chiTiet.setSoLuong(req.getSoLuongTra());
-            chiTiet.setDonGia(ctt.getTrangPhuc().getDonGia());
+            chiTiet.setDonGia(trangPhuc.getDonGia());
             chiTiet.setNgayThue(phieuThue.getNgayLap().format(FMT));
             chiTiet.setSoNgayThue(soNgay);
             chiTiet.setTienThue(tienThue);
@@ -111,16 +120,23 @@ public class PhieuTraService {
         float tongPhat = 0;
 
         for (ChiTietTraRequestDTO req : request.getDanhSachTra()) {
-            ChiTietThue ctt = chiTietThueRepository.findById(req.getChiTietThueId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chi tiết thuê"));
+            TrangPhuc trangPhuc = trangPhucRepository.findById(req.getTrangPhucId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy trang phục"));
+
+            long soNgay = ChronoUnit.DAYS.between(phieuThue.getNgayLap(), homNay);
+            if (soNgay < 1) soNgay = 1;
+
+            float thanhTien = trangPhuc.getDonGia() * soNgay * req.getSoLuongTra();
 
             ChiTietTra chiTietTra = new ChiTietTra();
             chiTietTra.setSoLuong(req.getSoLuongTra());
-            chiTietTra.setChiTietThue(ctt);
+            chiTietTra.setThanhTien(thanhTien);
+            chiTietTra.setTrangPhuc(trangPhuc);
             chiTietTra.setPhieuTra(phieuTra);
 
-            // Tinh tien phat tu nhieu loi, goi Feign de lay mucPhat
-            List<ChiTietLoi> loiList = new ArrayList<>();
+            chiTietTraList.add(chiTietTra);
+
+            // Tinh tien phat tu nhieu loi
             float tienPhatItem = 0;
             for (LoiPhatRequest loiReq : req.getDanhSachLoi()) {
                 LoiDTO loiDTO = loiClient.layLoiTheoId(loiReq.getLoiId());
@@ -129,32 +145,37 @@ public class PhieuTraService {
                 }
                 float phat = loiDTO.getMucPhat() * loiReq.getSoLuong();
                 tienPhatItem += phat;
-
-                ChiTietLoi chiTietLoi = new ChiTietLoi();
-                chiTietLoi.setLoiId(loiReq.getLoiId());
-                chiTietLoi.setTenLoi(loiDTO.getTenLoi());
-                chiTietLoi.setMucPhat(loiDTO.getMucPhat());
-                chiTietLoi.setTongLoi(loiReq.getSoLuong());
-                chiTietLoi.setTienPhat(phat);
-                chiTietLoi.setChiTietTra(chiTietTra);
-                loiList.add(chiTietLoi);
             }
-
-            chiTietTra.setTienPhat(tienPhatItem);
-            chiTietTra.setChiTietLoiList(loiList);
             tongPhat += tienPhatItem;
-            chiTietTraList.add(chiTietTra);
-
-            // Cap nhat trang thai da tra
-            ctt.setSoLuongDaTra(ctt.getSoLuongDaTra() + req.getSoLuongTra());
-            if (ctt.getSoLuongDaTra() >= ctt.getSoLuong()) {
-                ctt.setDaTra(true);
-            }
-            chiTietThueRepository.save(ctt);
         }
 
         phieuTra.setTienPhat(tongPhat);
         phieuTra.setChiTietTraList(chiTietTraList);
-        return phieuTraRepository.save(phieuTra);
+        PhieuTra savedPhieuTra = phieuTraRepository.save(phieuTra);
+
+        // Goi sang loihongphat-service de luu chi tiet loi
+        for (int i = 0; i < request.getDanhSachTra().size(); i++) {
+            ChiTietTraRequestDTO req = request.getDanhSachTra().get(i);
+            ChiTietTra savedCTT = savedPhieuTra.getChiTietTraList().get(i);
+
+            for (LoiPhatRequest loiReq : req.getDanhSachLoi()) {
+                Map<String, Object> chiTietLoiData = new HashMap<>();
+                chiTietLoiData.put("loiId", loiReq.getLoiId());
+                chiTietLoiData.put("tongLoi", loiReq.getSoLuong());
+                chiTietLoiData.put("chiTietTraId", savedCTT.getId());
+                try {
+                    loiClient.themChiTietLoi(chiTietLoiData);
+                } catch (Exception e) {
+                    // Log but don't fail the transaction
+                    System.err.println("Warning: Không thể lưu chi tiết lỗi sang loihongphat-service: " + e.getMessage());
+                }
+            }
+        }
+
+        // Cap nhat status phieu thue
+        phieuThue.setStatus("DA_TRA");
+        phieuThueRepository.save(phieuThue);
+
+        return savedPhieuTra;
     }
 }

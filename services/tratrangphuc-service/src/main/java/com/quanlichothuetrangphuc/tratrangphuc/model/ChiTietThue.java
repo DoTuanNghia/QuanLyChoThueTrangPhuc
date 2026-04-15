@@ -20,18 +20,8 @@ public class ChiTietThue {
     @Column(name = "so_luong")
     private int soLuong;
 
-    @Column(name = "so_luong_da_tra")
-    private Integer soLuongDaTra;
-
-    public int getSoLuongDaTra() {
-        return soLuongDaTra == null ? 0 : soLuongDaTra;
-    }
-
     @Column(name = "thanh_tien")
     private float thanhTien;
-
-    @Column(name = "da_tra")
-    private boolean daTra;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "trang_phuc_id")

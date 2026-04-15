@@ -12,10 +12,9 @@ public class PhieuTraFormDTO {
     private int phieuThueId;
     private int nhanVienId;
 
-    // Danh sach cac chi tiet duoc tich chon tra
-    private List<Integer> chiTietThueIds = new ArrayList<>();
+    // Danh sach cac trang phuc duoc tich chon tra
+    private List<Integer> trangPhucIds = new ArrayList<>();
     private List<Integer> soLuongTras = new ArrayList<>();
-    private List<Float> tienPhats = new ArrayList<>();
     private List<Integer> loiIds = new ArrayList<>();
     private List<Integer> soLois = new ArrayList<>();
 
@@ -24,9 +23,9 @@ public class PhieuTraFormDTO {
      */
     public PhieuTraRequestDTO toRequestDTO() {
         List<ChiTietTraRequestDTO> danhSachTra = new ArrayList<>();
-        for (int i = 0; i < chiTietThueIds.size(); i++) {
+        for (int i = 0; i < trangPhucIds.size(); i++) {
             ChiTietTraRequestDTO item = new ChiTietTraRequestDTO();
-            item.setChiTietThueId(chiTietThueIds.get(i));
+            item.setTrangPhucId(trangPhucIds.get(i));
             item.setSoLuongTra(i < soLuongTras.size() && soLuongTras.get(i) != null ? soLuongTras.get(i) : 1);
             
             int loiId = i < loiIds.size() && loiIds.get(i) != null ? loiIds.get(i) : 0;

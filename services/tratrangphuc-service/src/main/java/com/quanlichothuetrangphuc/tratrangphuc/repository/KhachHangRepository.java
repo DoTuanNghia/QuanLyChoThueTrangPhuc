@@ -12,9 +12,9 @@ import java.util.List;
 public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
     List<KhachHang> findByTenContainingIgnoreCase(String ten);
 
-    @Query("SELECT DISTINCT pt.khachHang FROM PhieuThue pt JOIN pt.chiTietThueList ctt WHERE ctt.daTra = false")
+    @Query("SELECT DISTINCT pt.khachHang FROM PhieuThue pt WHERE pt.status <> 'DA_TRA' OR pt.status IS NULL")
     List<KhachHang> findKhachHangCoDoThue();
 
-    @Query("SELECT DISTINCT pt.khachHang FROM PhieuThue pt JOIN pt.chiTietThueList ctt WHERE ctt.daTra = false AND LOWER(pt.khachHang.ten) LIKE LOWER(CONCAT('%', :ten, '%'))")
+    @Query("SELECT DISTINCT pt.khachHang FROM PhieuThue pt WHERE (pt.status <> 'DA_TRA' OR pt.status IS NULL) AND LOWER(pt.khachHang.ten) LIKE LOWER(CONCAT('%', :ten, '%'))")
     List<KhachHang> findKhachHangCoDoThueTheoTen(@Param("ten") String ten);
 }

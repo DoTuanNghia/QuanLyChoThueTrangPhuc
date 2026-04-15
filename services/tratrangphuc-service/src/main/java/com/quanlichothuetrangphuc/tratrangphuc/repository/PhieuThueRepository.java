@@ -11,9 +11,7 @@ import java.util.List;
 @Repository
 public interface PhieuThueRepository extends JpaRepository<PhieuThue, Integer> {
 
-    // Lấy tất cả phiếu thuê của KH, có ít nhất 1 chi tiết thuê chưa trả
-    @Query("SELECT DISTINCT pt FROM PhieuThue pt " +
-           "JOIN pt.chiTietThueList ctt " +
-           "WHERE pt.khachHang.id = :khachHangId AND ctt.daTra = false")
+    // Lấy tất cả phiếu thuê của KH chưa trả hết (status chưa DA_TRA)
+    @Query("SELECT pt FROM PhieuThue pt WHERE pt.khachHang.id = :khachHangId AND (pt.status <> 'DA_TRA' OR pt.status IS NULL)")
     List<PhieuThue> findChuaTraByKhachHangId(@Param("khachHangId") int khachHangId);
 }

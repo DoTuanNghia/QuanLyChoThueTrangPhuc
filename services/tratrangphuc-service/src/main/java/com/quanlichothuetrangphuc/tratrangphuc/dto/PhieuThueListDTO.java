@@ -12,6 +12,8 @@ public class PhieuThueListDTO {
     private String ngayLap;        // "dd/MM/yyyy"
     private float tienCoc;
     private float tongTien;
+    private String loai;           // ONLINE, OFFLINE
+    private String status;
     private String tenKhachHang;
     private String soDienThoaiKH;
 }

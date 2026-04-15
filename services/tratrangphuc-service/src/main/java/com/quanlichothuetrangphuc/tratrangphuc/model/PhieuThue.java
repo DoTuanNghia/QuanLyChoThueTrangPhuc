@@ -29,6 +29,12 @@ public class PhieuThue {
     @Column(name = "ngay_lap", nullable = false)
     private LocalDate ngayLap;
 
+    @Column(name = "loai", length = 255)
+    private String loai;  // ONLINE, OFFLINE
+
+    @Column(name = "status", length = 255)
+    private String status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nhan_vien_id")
     private NhanVien nhanVien;

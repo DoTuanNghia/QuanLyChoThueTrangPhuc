@@ -33,7 +33,9 @@ public class PhieuThueService {
             dto.setId(pt.getId());
             dto.setTienCoc(pt.getTienCoc());
             dto.setTongTien(pt.getTongTien());
-            dto.setNgayLap(pt.getNgayLap().format(FMT));          // String "dd/MM/yyyy"
+            dto.setNgayLap(pt.getNgayLap().format(FMT));
+            dto.setLoai(pt.getLoai());
+            dto.setStatus(pt.getStatus());
             dto.setKhachHangId(pt.getKhachHang().getId());
             dto.setTenKhachHang(pt.getKhachHang().getTen());
             dto.setSoDienThoaiKH(pt.getKhachHang().getSoDienThoai());
@@ -41,23 +43,20 @@ public class PhieuThueService {
 
             List<ChiTietThueDTO> cttDtos = new ArrayList<>();
             for (ChiTietThue ctt : pt.getChiTietThueList()) {
-                int remaining = ctt.getSoLuong() - ctt.getSoLuongDaTra();
-                if (!ctt.isDaTra() && remaining > 0) {
-                    ChiTietThueDTO cttDto = new ChiTietThueDTO();
-                    cttDto.setId(ctt.getId());
-                    cttDto.setSoLuong(remaining); // hien thi so luong con lai
-                    cttDto.setTenTrangPhuc(ctt.getTrangPhuc().getTen());
-                    cttDto.setDonGia(ctt.getTrangPhuc().getDonGia());
-                    cttDto.setNgayThue(pt.getNgayLap().format(FMT)); // String "dd/MM/yyyy"
-                    cttDto.setThanhTien(ctt.getThanhTien());
+                ChiTietThueDTO cttDto = new ChiTietThueDTO();
+                cttDto.setId(ctt.getId());
+                cttDto.setSoLuong(ctt.getSoLuong());
+                cttDto.setTenTrangPhuc(ctt.getTrangPhuc().getTen());
+                cttDto.setDonGia(ctt.getTrangPhuc().getDonGia());
+                cttDto.setNgayThue(pt.getNgayLap().format(FMT));
+                cttDto.setThanhTien(ctt.getThanhTien());
+                cttDto.setTrangPhucId(ctt.getTrangPhuc().getId());
 
-                    long soNgay = ChronoUnit.DAYS.between(pt.getNgayLap(), homNay);
-                    if (soNgay < 1) soNgay = 1;
-                    cttDto.setSoNgayThue(soNgay);
-                    cttDto.setTienThueDenNay(ctt.getTrangPhuc().getDonGia() * soNgay * remaining);
-                    cttDto.setDaTra(false);
-                    cttDtos.add(cttDto);
-                }
+                long soNgay = ChronoUnit.DAYS.between(pt.getNgayLap(), homNay);
+                if (soNgay < 1) soNgay = 1;
+                cttDto.setSoNgayThue(soNgay);
+                cttDto.setTienThueDenNay(ctt.getTrangPhuc().getDonGia() * soNgay * ctt.getSoLuong());
+                cttDtos.add(cttDto);
             }
             dto.setDanhSachChuaTra(cttDtos);
             result.add(dto);
@@ -75,6 +74,8 @@ public class PhieuThueService {
             dto.setNgayLap(pt.getNgayLap().format(FMT));
             dto.setTienCoc(pt.getTienCoc());
             dto.setTongTien(pt.getTongTien());
+            dto.setLoai(pt.getLoai());
+            dto.setStatus(pt.getStatus());
             dto.setTenKhachHang(pt.getKhachHang() != null ? pt.getKhachHang().getTen() : "");
             dto.setSoDienThoaiKH(pt.getKhachHang() != null ? pt.getKhachHang().getSoDienThoai() : "");
             result.add(dto);
@@ -92,4 +93,3 @@ public class PhieuThueService {
                 .orElseThrow(() -> new RuntimeException("Khong tim thay phieu thue id=" + id));
     }
 }
-

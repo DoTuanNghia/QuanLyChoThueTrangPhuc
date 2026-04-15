@@ -1,4 +1,4 @@
-package com.quanlichothuetrangphuc.tratrangphuc.dto;
+package com.loihongphat.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChiTietLoiViewDTO {
+public class ChiTietLoiDTO {
     private int id;
     private int tongLoi;
     private float tienPhat;

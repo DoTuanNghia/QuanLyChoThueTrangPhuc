@@ -6,22 +6,23 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 @Entity
-@Table(name = "trang_phuc")
+@Table(name = "thanh_vien")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TrangPhuc {
+public class ThanhVien {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(nullable = false, length = 255)
-    private String ten;
+    private String username;
 
-    @Column(name = "don_gia")
-    private float donGia;
+    @Column(nullable = false, length = 255)
+    private String password;
 
-    @Column(name = "so_luong")
-    private int soLuong;
+    @Column(length = 255)
+    private String role;
 }

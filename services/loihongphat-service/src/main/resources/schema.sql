@@ -1,15 +1,25 @@
 -- =============================================
--- SCHEMA: loihongphat_db
+-- SCHEMA: loihongphat_db (quanLyLoi service)
 -- =============================================
 CREATE DATABASE IF NOT EXISTS loihongphat_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE loihongphat_db;
 
--- Bảng Lỗi (Source of Truth cho tất cả service)
+-- Bảng Lỗi (tblLoi)
 CREATE TABLE IF NOT EXISTS loi (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    ten_loi VARCHAR(100) NOT NULL,
-    muc_phat FLOAT DEFAULT 0,
-    mo_ta VARCHAR(300)
+    ten_loi VARCHAR(255) NOT NULL,
+    muc_phat FLOAT(10) DEFAULT 0,
+    mo_ta VARCHAR(255)
+) ENGINE=InnoDB;
+
+-- Bảng Chi Tiết Lỗi (tblChiTietLoi)
+CREATE TABLE IF NOT EXISTS chi_tiet_loi (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tong_loi INT DEFAULT 0,
+    tien_phat FLOAT(10) DEFAULT 0,
+    loi_id INT,
+    chi_tiet_tra_id INT,
+    FOREIGN KEY (loi_id) REFERENCES loi(id)
 ) ENGINE=InnoDB;
 
 -- Dữ liệu mẫu khởi tạo
