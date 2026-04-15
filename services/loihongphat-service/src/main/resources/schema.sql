@@ -12,15 +12,6 @@ CREATE TABLE IF NOT EXISTS loi (
     mo_ta VARCHAR(255)
 ) ENGINE=InnoDB;
 
--- Bảng Chi Tiết Lỗi (tblChiTietLoi)
-CREATE TABLE IF NOT EXISTS chi_tiet_loi (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    tong_loi INT DEFAULT 0,
-    tien_phat FLOAT(10) DEFAULT 0,
-    loi_id INT,
-    chi_tiet_tra_id INT,
-    FOREIGN KEY (loi_id) REFERENCES loi(id)
-) ENGINE=InnoDB;
 
 -- Dữ liệu mẫu khởi tạo
 INSERT INTO loi (ten_loi, muc_phat, mo_ta) VALUES

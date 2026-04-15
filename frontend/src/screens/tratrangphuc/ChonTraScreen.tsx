@@ -107,7 +107,7 @@ export default function ChonTraScreen({ navigation, route }: Props) {
         })),
       };
       const hoaDon = await tratrangphucApi.preview(request);
-      navigation.navigate('PreviewHoaDon', { request, hoaDon });
+      navigation.navigate('PreviewHoaDon', { request, hoaDon, nhanVien });
     } catch (e: any) { Alert.alert('Lỗi', e.message); }
     finally { setSubmitting(false); }
   };

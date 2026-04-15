@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function KetQuaScreen({ navigation, route }: Props) {
-  const { success, message, phieuTraId } = route.params;
+  const { success, message, phieuTraId, nhanVien } = route.params;
 
   const scaleAnim  = useRef(new Animated.Value(0)).current;
   const fadeAnim   = useRef(new Animated.Value(0)).current;
@@ -76,7 +76,7 @@ export default function KetQuaScreen({ navigation, route }: Props) {
           {success && (
             <TouchableOpacity
               style={[styles.primaryBtn, { backgroundColor: accentColor }]}
-              onPress={() => navigation.navigate('TimKiemKH')}
+              onPress={() => navigation.navigate('TimKiemKH', { nhanVien })}
               activeOpacity={0.8}
             >
               <Text style={styles.primaryBtnText}>Trả cho khách khác →</Text>
@@ -84,7 +84,7 @@ export default function KetQuaScreen({ navigation, route }: Props) {
           )}
           <TouchableOpacity
             style={styles.secondaryBtn}
-            onPress={() => navigation.navigate('Home')}
+            onPress={() => navigation.navigate('Home', { nhanVien })}
             activeOpacity={0.8}
           >
             <Text style={styles.secondaryBtnText}>🏠 Về Trang Chủ</Text>

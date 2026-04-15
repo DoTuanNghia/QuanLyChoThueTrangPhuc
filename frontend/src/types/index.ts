@@ -112,6 +112,6 @@ export type RootStackParamList = {
   TimKiemKH: { nhanVien: NhanVien };
   DanhSachPhieuThue: { khachHang: KhachHang; nhanVien: NhanVien };
   ChonTra: { phieuThue: PhieuThue; khachHang: KhachHang; nhanVien: NhanVien };
-  PreviewHoaDon: { request: PhieuTraRequest; hoaDon: HoaDonTra };
-  KetQua: { success: boolean; message: string; phieuTraId?: number };
+  PreviewHoaDon: { request: PhieuTraRequest; hoaDon: HoaDonTra; nhanVien: NhanVien };
+  KetQua: { success: boolean; message: string; phieuTraId?: number; nhanVien: NhanVien };
 };

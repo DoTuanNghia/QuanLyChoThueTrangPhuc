@@ -40,7 +40,7 @@ function SumRow({ label, value, bold, warning, green }: {
 }
 
 export default function PreviewHoaDonScreen({ navigation, route }: Props) {
-  const { request, hoaDon } = route.params;
+  const { request, hoaDon, nhanVien } = route.params;
   const [loading, setLoading] = useState(false);
 
   const fmtVND = (v: number) => v?.toLocaleString('vi-VN') + 'đ';
@@ -55,6 +55,7 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
         success: result.success,
         message: result.message,
         phieuTraId: result.phieuTraId,
+        nhanVien,
       });
     } catch (e: any) { Alert.alert('Lỗi', e.message); }
     finally { setLoading(false); }
