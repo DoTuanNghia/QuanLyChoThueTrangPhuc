@@ -19,7 +19,7 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName="Home"
         screenOptions={{
           headerStyle: { backgroundColor: '#FFFFFF' },
           headerTintColor: '#1B2A4A',
@@ -29,7 +29,7 @@ export default function AppNavigator() {
         }}
       >
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} initialParams={{ nhanVien: { id: 1, username: 'Admin (Dev)' } }} />
         <Stack.Screen name="DanhSachLoi" component={DanhSachLoiScreen} options={{ title: 'Quản Lý Lỗi Hỏng Phạt' }} />
         <Stack.Screen name="ThemSuaLoi" component={ThemSuaLoiScreen} options={({ route }) => ({
           title: route.params?.loi ? 'Sửa Lỗi' : 'Thêm Lỗi Mới',
