@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Alert, ActivityIndicator,
+  Alert, ActivityIndicator, Image, Modal,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -42,6 +42,7 @@ function SumRow({ label, value, bold, warning, green }: {
 export default function PreviewHoaDonScreen({ navigation, route }: Props) {
   const { request, hoaDon, nhanVien } = route.params;
   const [loading, setLoading] = useState(false);
+  const [showQR, setShowQR] = useState(false);
 
   const fmtVND = (v: number) => v?.toLocaleString('vi-VN') + 'đ';
   const soTienConLai = hoaDon.soTienConLai ?? (hoaDon.tongThanhToan - hoaDon.tienCoc);
@@ -51,6 +52,7 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
     try {
       setLoading(true);
       const result = await tratrangphucApi.xacNhanTra(request);
+      setShowQR(false);
       navigation.replace('KetQua', {
         success: result.success,
         message: result.message,
@@ -59,6 +61,14 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
       });
     } catch (e: any) { Alert.alert('Lỗi', e.message); }
     finally { setLoading(false); }
+  };
+
+  const handleXacNhanMoi = () => {
+    if (khachTraThem) {
+      setShowQR(true);
+    } else {
+      handleXacNhan();
+    }
   };
 
   return (
@@ -206,16 +216,54 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
           </View>
           <TouchableOpacity
             style={[styles.confirmBtn, loading && { opacity: 0.6 }]}
-            onPress={handleXacNhan}
+            onPress={handleXacNhanMoi}
             disabled={loading}
           >
             {loading
               ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.confirmBtnText}>✅ Xác nhận trả trang phục</Text>
+              : <Text style={styles.confirmBtnText}>
+                  {khachTraThem ? '💵 Thanh toán' : '✅ Xác nhận trả trang phục'}
+                </Text>
             }
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* QR Code Modal for Payment */}
+      <Modal visible={showQR} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.qrModalBox}>
+            <Text style={styles.qrModalTitle}>Thanh toán bằng QR</Text>
+            <Text style={styles.qrModalSub}>Khách hàng quét mã để thanh toán</Text>
+            <Text style={styles.qrAmt}>{fmtVND(Math.abs(soTienConLai))}</Text>
+            
+            <View style={styles.qrImageBox}>
+              <Image 
+                source={require('../../assets/images/qr.jpg')} 
+                style={styles.qrImage}
+                resizeMode="contain"
+              />
+            </View>
+
+            <View style={styles.qrActions}>
+              <TouchableOpacity 
+                style={styles.qrCancelBtn} 
+                onPress={() => setShowQR(false)}
+                disabled={loading}
+              >
+                <Text style={styles.qrCancelText}>Đóng</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.qrConfirmBtn, loading && { opacity: 0.6 }]} 
+                onPress={handleXacNhan}
+                disabled={loading}
+              >
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.qrConfirmText}>✅ Xác nhận đã thanh toán</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -362,4 +410,37 @@ const styles = StyleSheet.create({
     minWidth: 220,
   },
   confirmBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(10,15,35,0.45)',
+    justifyContent: 'center', alignItems: 'center', padding: 24,
+  },
+  qrModalBox: {
+    backgroundColor: '#FFFFFF', borderRadius: 24,
+    padding: 32, width: '100%', maxWidth: 420,
+    alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15, shadowRadius: 30, elevation: 20,
+  },
+  qrModalTitle: { fontSize: 20, fontWeight: '800', color: '#1B2A4A', marginBottom: 6 },
+  qrModalSub: { fontSize: 14, color: '#8892A6', marginBottom: 16 },
+  qrAmt: { fontSize: 32, fontWeight: '900', color: ACCENT, marginBottom: 24 },
+  qrImageBox: {
+    width: 240, height: 240, borderRadius: 16, overflow: 'hidden',
+    borderWidth: 1.5, borderColor: '#ECEEF4', backgroundColor: '#F8F9FC',
+    alignItems: 'center', justifyContent: 'center', marginBottom: 30,
+    padding: 10,
+  },
+  qrImage: { width: '100%', height: '100%' },
+  qrActions: { flexDirection: 'row', gap: 12, width: '100%' },
+  qrCancelBtn: {
+    flex: 1, paddingVertical: 14, borderRadius: 12,
+    borderWidth: 1.5, borderColor: '#ECEEF4', alignItems: 'center',
+  },
+  qrCancelText: { color: '#5A6478', fontWeight: '700', fontSize: 15 },
+  qrConfirmBtn: {
+    flex: 1, paddingVertical: 14, borderRadius: 12,
+    backgroundColor: ACCENT, alignItems: 'center',
+  },
+  qrConfirmText: { color: '#fff', fontWeight: '700', fontSize: 15 },
 });

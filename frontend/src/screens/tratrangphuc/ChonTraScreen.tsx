@@ -325,7 +325,7 @@ export default function ChonTraScreen({ navigation, route }: Props) {
           >
             {submitting
               ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.previewBtnText}>Xem hóa đơn →</Text>
+              : <Text style={styles.previewBtnText}>Thanh toán →</Text>
             }
           </TouchableOpacity>
         </View>

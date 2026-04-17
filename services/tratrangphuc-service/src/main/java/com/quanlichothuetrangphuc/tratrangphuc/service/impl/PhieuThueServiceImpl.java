@@ -45,6 +45,8 @@ public class PhieuThueServiceImpl implements PhieuThueService {
 
             List<ChiTietThueDTO> cttDtos = new ArrayList<>();
             for (ChiTietThue ctt : pt.getChiTietThueList()) {
+                if (ctt.getSoLuong() <= 0) continue;
+                
                 ChiTietThueDTO cttDto = new ChiTietThueDTO();
                 cttDto.setId(ctt.getId());
                 cttDto.setSoLuong(ctt.getSoLuong());
@@ -60,8 +62,10 @@ public class PhieuThueServiceImpl implements PhieuThueService {
                 cttDto.setTienThueDenNay(ctt.getTrangPhuc().getDonGia() * soNgay * ctt.getSoLuong());
                 cttDtos.add(cttDto);
             }
-            dto.setDanhSachChuaTra(cttDtos);
-            result.add(dto);
+            if (!cttDtos.isEmpty()) {
+                dto.setDanhSachChuaTra(cttDtos);
+                result.add(dto);
+            }
         }
         return result;
     }

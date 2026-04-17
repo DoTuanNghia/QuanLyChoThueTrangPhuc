@@ -150,6 +150,18 @@ public class PhieuTraServiceImpl implements PhieuTraService {
                 tienPhatItem += phat;
             }
             tongPhat += tienPhatItem;
+
+            // Cập nhật lại số lượng trong ChiTietThue (hỗ trợ trả một phần)
+            for (ChiTietThue ctt : phieuThue.getChiTietThueList()) {
+                if (ctt.getTrangPhuc().getId() == req.getTrangPhucId() && ctt.getSoLuong() > 0) {
+                    ctt.setSoLuong(Math.max(0, ctt.getSoLuong() - req.getSoLuongTra()));
+                    break;
+                }
+            }
+
+            // Hoàn lại kho cho Trang Phuc
+            trangPhuc.setSoLuong(trangPhuc.getSoLuong() + req.getSoLuongTra());
+            trangPhucRepository.save(trangPhuc);
         }
 
         phieuTra.setTienPhat(tongPhat);
@@ -176,7 +188,21 @@ public class PhieuTraServiceImpl implements PhieuTraService {
         }
 
         // Cap nhat status phieu thue
-        phieuThue.setStatus("DA_TRA");
+        boolean traHet = true;
+        for (ChiTietThue ctt : phieuThue.getChiTietThueList()) {
+            if (ctt.getSoLuong() > 0) {
+                traHet = false;
+                break;
+            }
+        }
+        
+        if (traHet) {
+            phieuThue.setStatus("DA_TRA");
+        }
+        
+        // Trừ đi tiền cọc đã áp dụng cho lần trả này để các lần trả sau không bị trừ lặp
+        phieuThue.setTienCoc(0);
+        
         phieuThueRepository.save(phieuThue);
 
         return savedPhieuTra;
