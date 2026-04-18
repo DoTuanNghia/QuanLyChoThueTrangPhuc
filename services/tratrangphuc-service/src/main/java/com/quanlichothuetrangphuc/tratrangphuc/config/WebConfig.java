@@ -34,17 +34,6 @@ public class WebConfig implements WebMvcConfigurer {
         return mapper;
     }
 
-    /**
-     * Cho phép truy cập static resources (CSS, JS) từ /webapp/css, /webapp/js
-     */
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/css/**")
-                .addResourceLocations("/css/");
-        registry.addResourceHandler("/js/**")
-                .addResourceLocations("/js/");
-        registry.addResourceHandler("/images/**")
-                .addResourceLocations("/images/");
-    }
+
 }
 
