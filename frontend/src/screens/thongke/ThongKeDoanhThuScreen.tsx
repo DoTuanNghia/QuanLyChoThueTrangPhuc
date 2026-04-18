@@ -28,13 +28,7 @@ export default function ThongKeDoanhThuScreen({ navigation }: Props) {
   const [data, setData] = useState<ThongKeDoanhThu[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  // Chi tiết modal
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedRow, setSelectedRow] = useState<ThongKeDoanhThu | null>(null);
-  const [chiTiet, setChiTiet] = useState<HoaDonThongKe[]>([]);
-  const [chiTietLoading, setChiTietLoading] = useState(false);
-
+  
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(24)).current;
 
@@ -63,22 +57,17 @@ export default function ThongKeDoanhThuScreen({ navigation }: Props) {
     }
   };
 
-  const handleRowPress = async (row: ThongKeDoanhThu) => {
-    setSelectedRow(row);
-    setModalVisible(true);
-    setChiTiet([]);
-    setChiTietLoading(true);
-    try {
-      let result: HoaDonThongKe[] = [];
-      if (loai === 'thang') result = await tratrangphucApi.chiTietTheoThang(row.nam, row.period);
-      else if (loai === 'quy') result = await tratrangphucApi.chiTietTheoQuy(row.nam, row.period);
-      else result = await tratrangphucApi.chiTietTheoNam(row.nam);
-      setChiTiet(result);
-    } catch {
-      setChiTiet([]);
-    } finally {
-      setChiTietLoading(false);
-    }
+  const handleRowPress = (row: ThongKeDoanhThu) => {
+    if (!loai) return;
+    const opt = LOAI_OPTIONS.find((o) => o.key === loai);
+    navigation.navigate('DanhSachHoaDon', {
+      loai: loai,
+      nam: row.nam,
+      period: row.period,
+      tenPeriod: row.tenPeriod,
+      color: opt?.color,
+      bg: opt?.bg
+    });
   };
 
   const selectedOption = LOAI_OPTIONS.find((o) => o.key === loai);
@@ -205,110 +194,6 @@ export default function ThongKeDoanhThuScreen({ navigation }: Props) {
           </>
         )}
       </Animated.View>
-
-      {/* Chi tiết Modal */}
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            {/* Modal Header */}
-            <View style={[styles.modalHeader, { borderBottomColor: selectedOption?.color ?? '#5B6FE6' }]}>
-              <View>
-                <Text style={styles.modalTitle}>Chi Tiết Hóa Đơn</Text>
-                <Text style={[styles.modalSubtitle, { color: selectedOption?.color ?? '#5B6FE6' }]}>
-                  {selectedRow?.tenPeriod}
-                </Text>
-              </View>
-              <TouchableOpacity style={styles.closeBtn} onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeBtnText}>✕</Text>
-              </TouchableOpacity>
-            </View>
-
-            {chiTietLoading && (
-              <View style={styles.modalCentered}>
-                <ActivityIndicator size="large" color={selectedOption?.color ?? '#5B6FE6'} />
-                <Text style={styles.loadingText}>Đang tải...</Text>
-              </View>
-            )}
-
-            {!chiTietLoading && chiTiet.length === 0 && (
-              <View style={styles.modalCentered}>
-                <Text style={styles.emptyEmoji}>🗂️</Text>
-                <Text style={styles.emptyText}>Không có hóa đơn nào</Text>
-              </View>
-            )}
-
-            {!chiTietLoading && chiTiet.length > 0 && (
-              <>
-                {/* Summary in modal */}
-                <View style={[styles.modalSummaryRow, { backgroundColor: selectedOption?.bg ?? '#EEF0FB' }]}>
-                  <Text style={styles.modalSummaryItem}>
-                    <Text style={styles.modalSummaryLabel}>Tổng HĐ: </Text>
-                    <Text style={[styles.modalSummaryVal, { color: selectedOption?.color }]}>{chiTiet.length}</Text>
-                  </Text>
-                  <Text style={styles.modalSummaryItem}>
-                    <Text style={styles.modalSummaryLabel}>Tổng DT: </Text>
-                    <Text style={[styles.modalSummaryVal, { color: selectedOption?.color }]}>
-                      {formatCurrency(chiTiet.reduce((s, h) => s + h.tongTienHoaDon, 0))}
-                    </Text>
-                  </Text>
-                </View>
-
-                {/* Column header */}
-                <View style={styles.chiTietHeader}>
-                  <Text style={[styles.cID, styles.chiTietHeaderCell]}>ID</Text>
-                  <Text style={[styles.cKH, styles.chiTietHeaderCell]}>Khách hàng</Text>
-                  <Text style={[styles.cDate, styles.chiTietHeaderCell]}>Ng.Mượn</Text>
-                  <Text style={[styles.cQty, styles.chiTietHeaderCell]}>SL</Text>
-                  <Text style={[styles.cMoney, styles.chiTietHeaderCell]}>Tiền</Text>
-                </View>
-
-                <ScrollView showsVerticalScrollIndicator={false} style={styles.modalList}>
-                  {chiTiet.map((hd, idx) => (
-                    <TouchableOpacity
-                      key={hd.phieuTraId}
-                      style={[styles.chiTietRow, idx % 2 === 1 && styles.chiTietRowAlt]}
-                      activeOpacity={0.7}
-                      onPress={async () => {
-                        try {
-                          const hoadon = await tratrangphucApi.layChiTietHoaDon(hd.phieuTraId);
-                          // Ẩn modal hiện tại, sau đó chuyến đến màn hình chi tiết mới
-                          setModalVisible(false);
-                          setTimeout(() => {
-                            navigation.navigate('ChiTietHoaDon', { 
-                              hoaDon: hoadon, 
-                            });
-                          }, 300);
-                        } catch (e: any) {
-                          alert('Lỗi: ' + e.message);
-                        }
-                      }}
-                    >
-                      <View style={styles.cID}>
-                        <View style={[styles.idBadge, { backgroundColor: selectedOption?.bg ?? '#EEF0FB' }]}>
-                          <Text style={[styles.idText, { color: selectedOption?.color ?? '#5B6FE6' }]}>
-                            #{hd.phieuTraId}
-                          </Text>
-                        </View>
-                      </View>
-                      <Text style={[styles.cKH, styles.chiTietCell]} numberOfLines={2}>{hd.tenKhachHang}</Text>
-                      <Text style={[styles.cDate, styles.chiTietCell]}>{hd.ngayMuon}</Text>
-                      <Text style={[styles.cQty, styles.chiTietCell]}>{hd.tongSoTrangPhuc}</Text>
-                      <Text style={[styles.cMoney, styles.moneyCell, { color: selectedOption?.color ?? '#5B6FE6' }]}>
-                        {formatCurrency(hd.tongTienHoaDon)}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </>
-            )}
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -404,78 +289,4 @@ const styles = StyleSheet.create({
   countText: { fontSize: 12, fontWeight: '700' },
   chevron: { fontSize: 18, color: '#C4CAD4', marginLeft: 6 },
 
-  // Modal
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(10,15,30,0.45)', justifyContent: 'flex-end' },
-  modalContainer: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '85%',
-    paddingBottom: 24,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    padding: 20,
-    borderBottomWidth: 1,
-  },
-  modalTitle: { fontSize: 18, fontWeight: '800', color: '#1B2A4A' },
-  modalSubtitle: { fontSize: 13, fontWeight: '600', marginTop: 2 },
-  closeBtn: {
-    width: 32, height: 32, borderRadius: 16,
-    backgroundColor: '#F0F1F5', alignItems: 'center', justifyContent: 'center',
-  },
-  closeBtnText: { fontSize: 14, color: '#8892A6', fontWeight: '700' },
-
-  modalCentered: { alignItems: 'center', justifyContent: 'center', padding: 40, gap: 10 },
-
-  modalSummaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    marginHorizontal: 16,
-    borderRadius: 10,
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  modalSummaryItem: {},
-  modalSummaryLabel: { fontSize: 12, color: '#8892A6', fontWeight: '600' },
-  modalSummaryVal: { fontSize: 14, fontWeight: '800' },
-
-  // Chi tiết table
-  chiTietHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1B2A4A',
-    marginHorizontal: 16,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 4,
-  },
-  chiTietHeaderCell: { fontSize: 10, fontWeight: '700', color: '#A7B0C4' },
-  modalList: { paddingHorizontal: 16 },
-  chiTietRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    borderRadius: 8,
-    marginBottom: 3,
-    borderWidth: 1,
-    borderColor: '#F0F1F5',
-  },
-  chiTietRowAlt: { backgroundColor: '#FAFBFF' },
-  chiTietCell: { fontSize: 12, color: '#4A5568' },
-  cID: { width: 48 },
-  cKH: { flex: 2.5 },
-  cDate: { flex: 1.8 },
-  cQty: { width: 30, textAlign: 'center' },
-  cMoney: { flex: 2, textAlign: 'right' },
-  moneyCell: { fontSize: 12, fontWeight: '700', textAlign: 'right' },
-  idBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
-  idText: { fontSize: 10, fontWeight: '700' },
 });

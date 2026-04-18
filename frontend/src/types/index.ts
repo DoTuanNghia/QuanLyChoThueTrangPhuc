@@ -134,5 +134,13 @@ export type RootStackParamList = {
   PreviewHoaDon: { request: PhieuTraRequest; hoaDon: HoaDonTra; nhanVien: NhanVien; isViewOnly?: boolean };
   KetQua: { success: boolean; message: string; phieuTraId?: number; nhanVien: NhanVien };
   ThongKeDoanhThu: undefined;
+  DanhSachHoaDon: { 
+    loai: 'thang' | 'quy' | 'nam'; 
+    nam: number; 
+    period: number; 
+    tenPeriod: string;
+    color?: string;
+    bg?: string;
+  };
   ChiTietHoaDon: { hoaDon: HoaDonTra };
 };

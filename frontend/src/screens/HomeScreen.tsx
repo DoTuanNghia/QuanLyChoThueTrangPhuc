@@ -28,9 +28,9 @@ export default function HomeScreen({ navigation, route }: Props) {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
-        <Text style={styles.logoEmoji}>🎭</Text>
-        <Text style={styles.title}>Quản Lý</Text>
-        <Text style={styles.subtitle}>Cho Thuê Trang Phục</Text>
+        {/* <Text style={styles.logoEmoji}>🎭</Text> */}
+        <Text style={styles.title}>Quản Lý Cho Thuê Trang Phục</Text>
+        {/* <Text style={styles.subtitle}></Text> */}
         <View style={styles.welcomeBadge}>
           <Text style={styles.welcomeText}>👋 Xin chào, <Text style={styles.welcomeName}>{nhanVien.username}</Text></Text>
         </View>

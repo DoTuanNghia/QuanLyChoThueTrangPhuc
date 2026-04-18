@@ -202,8 +202,8 @@ const styles = StyleSheet.create({
   invoiceId: { fontSize: 18, fontWeight: '900', color: ACCENT },
 
   twoCol: { flexDirection: 'column', gap: 16, marginBottom: 0 },
-  colLeft: { flex: 1 },
-  colRight: { flex: 1 },
+  colLeft: {  },
+  colRight: {  },
 
   card: {
     backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 16,

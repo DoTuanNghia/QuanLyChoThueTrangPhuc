@@ -13,6 +13,7 @@ import ChonTraScreen from '../screens/tratrangphuc/ChonTraScreen';
 import PreviewHoaDonScreen from '../screens/tratrangphuc/PreviewHoaDonScreen';
 import KetQuaScreen from '../screens/tratrangphuc/KetQuaScreen';
 import ThongKeDoanhThuScreen from '../screens/thongke/ThongKeDoanhThuScreen';
+import DanhSachHoaDonScreen from '../screens/thongke/DanhSachHoaDonScreen';
 import ChiTietHoaDonScreen from '../screens/thongke/ChiTietHoaDonScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -50,7 +51,7 @@ export default function AppNavigator() {
         })}
       >
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} initialParams={{ nhanVien: { id: 1, username: 'Admin (Dev)' } }} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} initialParams={{ nhanVien: { id: 1, username: 'Admin' } }} />
         <Stack.Screen name="DanhSachLoi" component={DanhSachLoiScreen} options={{ title: 'Quản Lý Lỗi' }} />
         <Stack.Screen name="ThemSuaLoi" component={ThemSuaLoiScreen} options={({ route }) => ({
           title: route.params?.loi ? 'Sửa Lỗi' : 'Thêm Lỗi Mới',
@@ -61,6 +62,7 @@ export default function AppNavigator() {
         <Stack.Screen name="PreviewHoaDon" component={PreviewHoaDonScreen} options={{ title: 'Hóa Đơn' }} />
         <Stack.Screen name="KetQua" component={KetQuaScreen} options={{ title: 'Kết Quả', headerLeft: () => null }} />
         <Stack.Screen name="ThongKeDoanhThu" component={ThongKeDoanhThuScreen} options={{ title: 'Thống Kê Doanh Thu' }} />
+        <Stack.Screen name="DanhSachHoaDon" component={DanhSachHoaDonScreen} options={{ title: 'Hóa Đơn Thống Kê' }} />
         <Stack.Screen name="ChiTietHoaDon" component={ChiTietHoaDonScreen} options={{ title: 'Chi Tiết Hóa Đơn Trả' }} />
       </Stack.Navigator>
     </NavigationContainer>
