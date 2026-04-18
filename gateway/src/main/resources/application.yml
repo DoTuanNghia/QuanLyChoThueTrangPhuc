@@ -37,7 +37,7 @@ spring:
         - id: tratrangphuc-service
           uri: lb://TRATRANGPHUC-SERVICE
           predicates:
-            - Path=/api/tra/**, /api/khach-hang/**, /api/nhan-vien/**, /api/phieu-thue/**, /api/trang-phuc/**
+            - Path=/api/tra/**, /api/khach-hang/**, /api/nhan-vien/**, /api/phieu-thue/**, /api/trang-phuc/**, /api/thong-ke/**
 
 eureka:
   client:
