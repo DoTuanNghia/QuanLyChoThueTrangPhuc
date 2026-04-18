@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HoaDonThongKeDTO {
-    private int phieuThueId;
+    private int phieuTraId;
     private String tenKhachHang;
     private String ngayMuon;      // ngayLap của phieuThue
     private int tongSoTrangPhuc;  // tổng soLuong các chiTietTra

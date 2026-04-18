@@ -115,7 +115,7 @@ export interface ThongKeDoanhThu {
 }
 
 export interface HoaDonThongKe {
-  phieuThueId: number;
+  phieuTraId: number;
   tenKhachHang: string;
   ngayMuon: string;
   tongSoTrangPhuc: number;
@@ -131,7 +131,8 @@ export type RootStackParamList = {
   TimKiemKH: { nhanVien: NhanVien };
   DanhSachPhieuThue: { khachHang: KhachHang; nhanVien: NhanVien };
   ChonTra: { phieuThue: PhieuThue; khachHang: KhachHang; nhanVien: NhanVien };
-  PreviewHoaDon: { request: PhieuTraRequest; hoaDon: HoaDonTra; nhanVien: NhanVien };
+  PreviewHoaDon: { request: PhieuTraRequest; hoaDon: HoaDonTra; nhanVien: NhanVien; isViewOnly?: boolean };
   KetQua: { success: boolean; message: string; phieuTraId?: number; nhanVien: NhanVien };
   ThongKeDoanhThu: undefined;
+  ChiTietHoaDon: { hoaDon: HoaDonTra };
 };

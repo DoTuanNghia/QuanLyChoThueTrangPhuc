@@ -7,4 +7,5 @@ import com.quanlichothuetrangphuc.tratrangphuc.model.PhieuTra;
 public interface PhieuTraService {
     HoaDonTraDTO preview(PhieuTraRequestDTO request);
     PhieuTra xacNhanTra(PhieuTraRequestDTO request);
+    HoaDonTraDTO layChiTietHoaDon(int phieuTraId);
 }

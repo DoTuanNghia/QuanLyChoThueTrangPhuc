@@ -26,6 +26,9 @@ export const tratrangphucApi = {
       )
       .then((r) => r.data),
 
+  layChiTietHoaDon: (phieuTraId: number) =>
+    axiosInstance.get<HoaDonTra>(`/api/tra/${phieuTraId}/chi-tiet`).then((r) => r.data),
+
   // ===== THONG KE DOANH THU =====
   thongKeTheoThang: () =>
     axiosInstance.get<ThongKeDoanhThu[]>('/api/thong-ke/thang').then((r) => r.data),

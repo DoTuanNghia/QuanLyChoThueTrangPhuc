@@ -40,8 +40,8 @@ export default function ThongKeDoanhThuScreen({ navigation }: Props) {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 450, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: false }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 450, useNativeDriver: false }),
     ]).start();
   }, []);
 
@@ -269,14 +269,29 @@ export default function ThongKeDoanhThuScreen({ navigation }: Props) {
 
                 <ScrollView showsVerticalScrollIndicator={false} style={styles.modalList}>
                   {chiTiet.map((hd, idx) => (
-                    <View
-                      key={hd.phieuThueId}
+                    <TouchableOpacity
+                      key={hd.phieuTraId}
                       style={[styles.chiTietRow, idx % 2 === 1 && styles.chiTietRowAlt]}
+                      activeOpacity={0.7}
+                      onPress={async () => {
+                        try {
+                          const hoadon = await tratrangphucApi.layChiTietHoaDon(hd.phieuTraId);
+                          // Ẩn modal hiện tại, sau đó chuyến đến màn hình chi tiết mới
+                          setModalVisible(false);
+                          setTimeout(() => {
+                            navigation.navigate('ChiTietHoaDon', { 
+                              hoaDon: hoadon, 
+                            });
+                          }, 300);
+                        } catch (e: any) {
+                          alert('Lỗi: ' + e.message);
+                        }
+                      }}
                     >
                       <View style={styles.cID}>
                         <View style={[styles.idBadge, { backgroundColor: selectedOption?.bg ?? '#EEF0FB' }]}>
                           <Text style={[styles.idText, { color: selectedOption?.color ?? '#5B6FE6' }]}>
-                            #{hd.phieuThueId}
+                            #{hd.phieuTraId}
                           </Text>
                         </View>
                       </View>
@@ -286,7 +301,7 @@ export default function ThongKeDoanhThuScreen({ navigation }: Props) {
                       <Text style={[styles.cMoney, styles.moneyCell, { color: selectedOption?.color ?? '#5B6FE6' }]}>
                         {formatCurrency(hd.tongTienHoaDon)}
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                   ))}
                 </ScrollView>
               </>
@@ -352,7 +367,6 @@ const styles = StyleSheet.create({
   summaryCard: {
     flex: 1, backgroundColor: '#fff', borderRadius: 12,
     padding: 14, borderLeftWidth: 4,
-    shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   summaryLabel: { fontSize: 11, color: '#8892A6', fontWeight: '600', marginBottom: 4 },
   summaryValue: { fontSize: 15, fontWeight: '800' },
@@ -377,7 +391,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 10,
     marginBottom: 4,
-    shadowColor: '#1B2A4A', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+    borderWidth: 1,
+    borderColor: '#F0F1F5',
   },
   tableRowAlt: { backgroundColor: '#FAFBFF' },
   colPeriod: { flex: 2 },

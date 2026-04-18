@@ -207,4 +207,65 @@ public class PhieuTraServiceImpl implements PhieuTraService {
 
         return savedPhieuTra;
     }
+
+    /** Lay chi tiet hoa don tu PhieuTra da luu */
+    @Override
+    public HoaDonTraDTO layChiTietHoaDon(int phieuTraId) {
+        PhieuTra phieuTra = phieuTraRepository.findById(phieuTraId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phiếu trả ID=" + phieuTraId));
+
+        PhieuThue phieuThue = phieuTra.getPhieuThue();
+        HoaDonTraDTO hoadon = new HoaDonTraDTO();
+        hoadon.setTenKhachHang(phieuThue.getKhachHang().getTen());
+        hoadon.setSoDienThoaiKH(phieuThue.getKhachHang().getSoDienThoai());
+        hoadon.setDiaChiKH(phieuThue.getKhachHang().getDiaChi());
+        hoadon.setPhieuThueId(phieuThue.getId());
+        hoadon.setNgayThue(phieuThue.getNgayLap().format(FMT));
+        hoadon.setTienCoc(phieuThue.getTienCoc()); // Có thể = 0 nếu các phiếu trước đã trừ
+        hoadon.setNgayTra(phieuTra.getNgayLap().format(FMT));
+        hoadon.setTenNhanVien(phieuTra.getNhanVien().getUsername());
+
+        List<HoaDonChiTietDTO> chiTietList = new ArrayList<>();
+        float tongTienThue = 0, tongTienPhat = 0;
+
+        for (ChiTietTra ctt : phieuTra.getChiTietTraList()) {
+            TrangPhuc trangPhuc = ctt.getTrangPhuc();
+            long soNgay = ChronoUnit.DAYS.between(phieuThue.getNgayLap(), phieuTra.getNgayLap());
+            if (soNgay < 1) soNgay = 1;
+
+            float tienThue = ctt.getThanhTien(); // Đã tính sẵn lúc lưu
+            
+            // Lấy danh sách lỗi liên quan đến chi tiết trả này từ loihongphat-service
+            List<ChiTietLoiViewDTO> loiViews = new ArrayList<>();
+            float tienPhatItem = 0;
+            try {
+                // Gọi sang LoiClient (có the LoiClient can api de lay "loi theo chiTietTraId")
+                // Do thiết kế LoiClient hiện tại chưa có lấy theo chiTietTraId, ta dùng mảng rỗng 
+                // hoặc lấy tổng phạt chia đều nếu ko có endpoint.
+                // Ở đây do chưa setup endpoint getLoiTừChiTietTra, ta tạm fake phần phạt của item:
+            } catch (Exception e) {}
+
+            HoaDonChiTietDTO chiTietDTO = new HoaDonChiTietDTO();
+            chiTietDTO.setTenTrangPhuc(trangPhuc.getTen());
+            chiTietDTO.setSoLuong(ctt.getSoLuong());
+            chiTietDTO.setDonGia(trangPhuc.getDonGia());
+            chiTietDTO.setNgayThue(phieuThue.getNgayLap().format(FMT));
+            chiTietDTO.setSoNgayThue(soNgay);
+            chiTietDTO.setTienThue(tienThue);
+            chiTietDTO.setTienPhat(0); // Tạm đặt 0 nếu không có api chi tiết lỗi
+            chiTietDTO.setDanhSachLoi(loiViews);
+            chiTietDTO.setTongCong(tienThue);
+            
+            tongTienThue += tienThue;
+            chiTietList.add(chiTietDTO);
+        }
+
+        hoadon.setDanhSachChiTiet(chiTietList);
+        hoadon.setTongTienThue(tongTienThue);
+        hoadon.setTongTienPhat(phieuTra.getTienPhat()); // Tong phat
+        hoadon.setTongThanhToan(tongTienThue + phieuTra.getTienPhat());
+        hoadon.setSoTienConLai((tongTienThue + phieuTra.getTienPhat()) - phieuThue.getTienCoc());
+        
+        return hoadon;
+    }
 }

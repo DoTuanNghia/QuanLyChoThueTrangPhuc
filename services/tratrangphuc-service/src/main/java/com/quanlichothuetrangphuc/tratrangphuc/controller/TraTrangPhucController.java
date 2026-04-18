@@ -97,6 +97,16 @@ public class TraTrangPhucController {
         }
     }
 
+    @GetMapping("/tra/{id}/chi-tiet")
+    public ResponseEntity<?> chiTietHoaDon(@PathVariable int id) {
+        try {
+            HoaDonTraDTO hoaDon = phieuTraService.layChiTietHoaDon(id);
+            return ResponseEntity.ok(hoaDon);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     // =========== THONG KE DOANH THU ===========
 
     @GetMapping("/thong-ke/thang")

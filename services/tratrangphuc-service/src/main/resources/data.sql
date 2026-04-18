@@ -118,3 +118,26 @@ INSERT INTO chi_tiet_thue (so_luong, thanh_tien, trang_phuc_id, phieu_thue_id) V
 -- Phiếu 11
 INSERT INTO chi_tiet_thue (so_luong, thanh_tien, trang_phuc_id, phieu_thue_id) VALUES
 (30, 3600000, 2, 11);
+
+-- 8. Phiếu trả (Mock Doanh Thu)
+INSERT INTO phieu_tra (tien_phat, ngay_lap, nhan_vien_id, phieu_thue_id) VALUES
+(0, '2026-03-25', 1, 1),
+(50000, '2026-03-28', 2, 2),
+(100000, '2026-04-05', 1, 3);
+
+-- 9. Chi tiết trả
+-- Trả cho phiếu 1 (Phiếu trả id 1)
+INSERT INTO chi_tiet_tra (so_luong, thanh_tien, trang_phuc_id, phieu_tra_id) VALUES
+(15, 2250000, 1, 1),
+(10, 1000000, 3, 1),
+(1, 180000, 4, 1);
+
+-- Trả cho phiếu 2 (Phiếu trả id 2)
+INSERT INTO chi_tiet_tra (so_luong, thanh_tien, trang_phuc_id, phieu_tra_id) VALUES
+(1, 120000, 2, 2),
+(1, 110000, 6, 2);
+
+-- Trả một phần cho phiếu 3 (Phiếu trả id 3)
+INSERT INTO chi_tiet_tra (so_luong, thanh_tien, trang_phuc_id, phieu_tra_id) VALUES
+(1, 130000, 5, 3);
+
