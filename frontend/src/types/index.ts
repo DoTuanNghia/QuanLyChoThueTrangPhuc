@@ -70,8 +70,10 @@ export interface PhieuTraRequest {
 // Response DTOs
 export interface ChiTietLoiView {
   tenLoi: string;
+  loiId: number;
   mucPhat: number;
-  soLuong: number;
+  tongLoi: number;   // mapped from backend ChiTietLoiViewDTO.tongLoi
+  soLuong: number;   // alias, same as tongLoi — backend field name
   tienPhat: number;
 }
 
@@ -103,6 +105,23 @@ export interface HoaDonTra {
   soTienConLai: number; // dương: KH trả thêm, âm: trả lại KH
 }
 
+// Thong ke doanh thu
+export interface ThongKeDoanhThu {
+  tenPeriod: string;
+  nam: number;
+  period: number;
+  tongDoanhThu: number;
+  soHoaDon: number;
+}
+
+export interface HoaDonThongKe {
+  phieuThueId: number;
+  tenKhachHang: string;
+  ngayMuon: string;
+  tongSoTrangPhuc: number;
+  tongTienHoaDon: number;
+}
+
 // Navigation param types
 export type RootStackParamList = {
   Login: undefined;
@@ -114,4 +133,5 @@ export type RootStackParamList = {
   ChonTra: { phieuThue: PhieuThue; khachHang: KhachHang; nhanVien: NhanVien };
   PreviewHoaDon: { request: PhieuTraRequest; hoaDon: HoaDonTra; nhanVien: NhanVien };
   KetQua: { success: boolean; message: string; phieuTraId?: number; nhanVien: NhanVien };
+  ThongKeDoanhThu: undefined;
 };

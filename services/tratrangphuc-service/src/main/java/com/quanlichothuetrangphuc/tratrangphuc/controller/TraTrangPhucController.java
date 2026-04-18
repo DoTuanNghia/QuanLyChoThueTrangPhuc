@@ -4,6 +4,7 @@ import com.quanlichothuetrangphuc.tratrangphuc.dto.*;
 import com.quanlichothuetrangphuc.tratrangphuc.model.KhachHang;
 import com.quanlichothuetrangphuc.tratrangphuc.model.NhanVien;
 import com.quanlichothuetrangphuc.tratrangphuc.model.TrangPhuc;
+import com.quanlichothuetrangphuc.tratrangphuc.service.DoanhThuService;
 import com.quanlichothuetrangphuc.tratrangphuc.service.KhachHangService;
 import com.quanlichothuetrangphuc.tratrangphuc.service.PhieuThueService;
 import com.quanlichothuetrangphuc.tratrangphuc.service.PhieuTraService;
@@ -27,6 +28,7 @@ public class TraTrangPhucController {
     private final PhieuTraService phieuTraService;
     private final TrangPhucService trangPhucService;
     private final NhanVienRepository nhanVienRepository;
+    private final DoanhThuService doanhThuService;
 
     // =========== KHACH HANG ===========
 
@@ -80,20 +82,52 @@ public class TraTrangPhucController {
     @PostMapping("/tra/xac-nhan")
     public ResponseEntity<Map<String, Object>> xacNhanTra(@RequestBody PhieuTraRequestDTO request) {
         try {
-            HoaDonTraDTO hoaDon = phieuTraService.preview(request);
             var phieuTra = phieuTraService.xacNhanTra(request);
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "Xác nhận trả thành công! Mã phiếu trả: #" + phieuTra.getId(),
-                    "phieuTraId", phieuTra.getId(),
-                    "hoaDon", hoaDon
+                    "phieuTraId", phieuTra.getId()
             ));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "message", "Lỗi khi xác nhận trả: " + e.getMessage()
+                    "message", "Lỗi khi xác nhận trả: " + (e.getMessage() != null ? e.getMessage() : "Lỗi không xác định")
             ));
         }
+    }
+
+    // =========== THONG KE DOANH THU ===========
+
+    @GetMapping("/thong-ke/thang")
+    public ResponseEntity<List<ThongKeDoanhThuDTO>> thongKeTheoThang() {
+        return ResponseEntity.ok(doanhThuService.thongKeTheoThang());
+    }
+
+    @GetMapping("/thong-ke/quy")
+    public ResponseEntity<List<ThongKeDoanhThuDTO>> thongKeTheoQuy() {
+        return ResponseEntity.ok(doanhThuService.thongKeTheoQuy());
+    }
+
+    @GetMapping("/thong-ke/nam")
+    public ResponseEntity<List<ThongKeDoanhThuDTO>> thongKeTheoNam() {
+        return ResponseEntity.ok(doanhThuService.thongKeTheoNam());
+    }
+
+    @GetMapping("/thong-ke/chi-tiet/thang")
+    public ResponseEntity<List<HoaDonThongKeDTO>> chiTietTheoThang(
+            @RequestParam int nam, @RequestParam int thang) {
+        return ResponseEntity.ok(doanhThuService.chiTietTheoThang(nam, thang));
+    }
+
+    @GetMapping("/thong-ke/chi-tiet/quy")
+    public ResponseEntity<List<HoaDonThongKeDTO>> chiTietTheoQuy(
+            @RequestParam int nam, @RequestParam int quy) {
+        return ResponseEntity.ok(doanhThuService.chiTietTheoQuy(nam, quy));
+    }
+
+    @GetMapping("/thong-ke/chi-tiet/nam")
+    public ResponseEntity<List<HoaDonThongKeDTO>> chiTietTheoNam(@RequestParam int nam) {
+        return ResponseEntity.ok(doanhThuService.chiTietTheoNam(nam));
     }
 }

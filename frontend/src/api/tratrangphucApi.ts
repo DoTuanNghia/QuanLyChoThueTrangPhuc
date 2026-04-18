@@ -1,5 +1,5 @@
 import axiosInstance from './axiosInstance';
-import { KhachHang, NhanVien, PhieuThue, PhieuTraRequest, HoaDonTra } from '../types';
+import { KhachHang, NhanVien, PhieuThue, PhieuTraRequest, HoaDonTra, ThongKeDoanhThu, HoaDonThongKe } from '../types';
 
 export const tratrangphucApi = {
   timKiemKhachHang: (ten?: string) =>
@@ -25,4 +25,30 @@ export const tratrangphucApi = {
         request
       )
       .then((r) => r.data),
+
+  // ===== THONG KE DOANH THU =====
+  thongKeTheoThang: () =>
+    axiosInstance.get<ThongKeDoanhThu[]>('/api/thong-ke/thang').then((r) => r.data),
+
+  thongKeTheoQuy: () =>
+    axiosInstance.get<ThongKeDoanhThu[]>('/api/thong-ke/quy').then((r) => r.data),
+
+  thongKeTheoNam: () =>
+    axiosInstance.get<ThongKeDoanhThu[]>('/api/thong-ke/nam').then((r) => r.data),
+
+  chiTietTheoThang: (nam: number, thang: number) =>
+    axiosInstance
+      .get<HoaDonThongKe[]>('/api/thong-ke/chi-tiet/thang', { params: { nam, thang } })
+      .then((r) => r.data),
+
+  chiTietTheoQuy: (nam: number, quy: number) =>
+    axiosInstance
+      .get<HoaDonThongKe[]>('/api/thong-ke/chi-tiet/quy', { params: { nam, quy } })
+      .then((r) => r.data),
+
+  chiTietTheoNam: (nam: number) =>
+    axiosInstance
+      .get<HoaDonThongKe[]>('/api/thong-ke/chi-tiet/nam', { params: { nam } })
+      .then((r) => r.data),
 };
+

@@ -73,7 +73,25 @@ export default function HomeScreen({ navigation, route }: Props) {
             <Text style={styles.arrow}>→</Text>
           </View>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('ThongKeDoanhThu')}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.cardIconBox, { backgroundColor: '#E6F4EC' }]}>
+            <Text style={styles.cardIcon}>📊</Text>
+          </View>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>Thống Kê Doanh Thu</Text>
+            <Text style={styles.cardDesc}>Xem báo cáo doanh thu theo tháng, quý, năm</Text>
+          </View>
+          <View style={styles.arrowBox}>
+            <Text style={styles.arrow}>→</Text>
+          </View>
+        </TouchableOpacity>
       </Animated.View>
+
 
       <Text style={styles.version}>v1.0.0 • Costume Rental Management</Text>
     </SafeAreaView>

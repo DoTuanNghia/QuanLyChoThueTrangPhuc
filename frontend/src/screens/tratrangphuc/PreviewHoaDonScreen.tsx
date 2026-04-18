@@ -44,8 +44,21 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
-  const fmtVND = (v: number) => v?.toLocaleString('vi-VN') + 'đ';
-  const soTienConLai = hoaDon.soTienConLai ?? (hoaDon.tongThanhToan - hoaDon.tienCoc);
+  if (!hoaDon) {
+    return (
+      <View style={styles.page}>
+        <Text style={{ marginTop: 100, textAlign: 'center' }}>Không thể tải dữ liệu hóa đơn.</Text>
+      </View>
+    );
+  }
+
+  const fmtVND = (v: any) => {
+    const num = Number(v);
+    if (isNaN(num)) return '0đ';
+    return num.toLocaleString('vi-VN') + 'đ';
+  };
+  
+  const soTienConLai = Number(hoaDon.soTienConLai ?? (hoaDon.tongThanhToan - hoaDon.tienCoc));
   const khachTraThem = soTienConLai > 0;
 
   const handleXacNhan = async () => {
@@ -53,14 +66,22 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
       setLoading(true);
       const result = await tratrangphucApi.xacNhanTra(request);
       setShowQR(false);
-      navigation.replace('KetQua', {
-        success: result.success,
-        message: result.message,
-        phieuTraId: result.phieuTraId,
-        nhanVien,
-      });
-    } catch (e: any) { Alert.alert('Lỗi', e.message); }
-    finally { setLoading(false); }
+      if (result.success) {
+        navigation.replace('KetQua', {
+          success: true,
+          message: result.message,
+          phieuTraId: result.phieuTraId,
+          nhanVien,
+        });
+      } else {
+        Alert.alert('Lỗi xác nhận', result.message || 'Xác nhận thất bại');
+      }
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || e?.message || 'Đã xảy ra lỗi không xác định';
+      Alert.alert('Lỗi', msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleXacNhanMoi = () => {
@@ -139,7 +160,7 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
           <View style={styles.card}>
             <Text style={styles.cardLabel}>CHI TIẾT TRANG PHỤC TRẢ</Text>
             <View style={styles.itemsList}>
-              {hoaDon.danhSachChiTiet.map((item, idx) => (
+              {(hoaDon.danhSachChiTiet || []).map((item, idx) => (
                 <View key={idx} style={styles.itemBox}>
                   <View style={styles.itemHdr}>
                     <View style={styles.itemIdx}>
@@ -169,7 +190,7 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
                         <Text style={styles.loiSecTitle}>⚠️ Lỗi hỏng</Text>
                         {item.danhSachLoi.map((l, li) => (
                           <View key={li} style={styles.loiRow}>
-                            <Text style={styles.loiName}>• {l.tenLoi} (×{l.soLuong})</Text>
+                            <Text style={styles.loiName}>• {l.tenLoi} (×{(l as any).tongLoi ?? l.soLuong})</Text>
                             <Text style={styles.loiPhat}>{fmtVND(l.tienPhat)}</Text>
                           </View>
                         ))}
@@ -239,7 +260,7 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
             
             <View style={styles.qrImageBox}>
               <Image 
-                source={require('../../assets/images/qr.jpg')} 
+                source={{ uri: 'https://cdn-icons-png.flaticon.com/512/714/714390.png' }} 
                 style={styles.qrImage}
                 resizeMode="contain"
               />

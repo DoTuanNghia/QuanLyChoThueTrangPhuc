@@ -112,7 +112,11 @@ export default function ChonTraScreen({ navigation, route }: Props) {
     finally { setSubmitting(false); }
   };
 
-  const fmtVND = (v: number) => v?.toLocaleString('vi-VN') + 'đ';
+  const fmtVND = (v: any) => {
+    const num = Number(v);
+    if (isNaN(num)) return '0đ';
+    return num.toLocaleString('vi-VN') + 'đ';
+  };
   const getName = (i: ItemState) =>
     (i.chiTietThue as any).tenTrangPhuc || i.chiTietThue.trangPhuc?.ten || 'N/A';
   const getPrice = (i: ItemState) =>

@@ -12,6 +12,7 @@ import DanhSachPhieuThueScreen from '../screens/tratrangphuc/DanhSachPhieuThueSc
 import ChonTraScreen from '../screens/tratrangphuc/ChonTraScreen';
 import PreviewHoaDonScreen from '../screens/tratrangphuc/PreviewHoaDonScreen';
 import KetQuaScreen from '../screens/tratrangphuc/KetQuaScreen';
+import ThongKeDoanhThuScreen from '../screens/tratrangphuc/ThongKeDoanhThuScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -39,6 +40,7 @@ export default function AppNavigator() {
         <Stack.Screen name="ChonTra" component={ChonTraScreen} options={{ title: 'Chọn Trang Phục Trả' }} />
         <Stack.Screen name="PreviewHoaDon" component={PreviewHoaDonScreen} options={{ title: 'Xem Trước Hóa Đơn' }} />
         <Stack.Screen name="KetQua" component={KetQuaScreen} options={{ title: 'Kết Quả', headerLeft: () => null }} />
+        <Stack.Screen name="ThongKeDoanhThu" component={ThongKeDoanhThuScreen} options={{ title: 'Thống Kê Doanh Thu' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
