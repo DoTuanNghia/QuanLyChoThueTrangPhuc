@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Platform } from 'react-native';
 import { RootStackParamList, Loi } from '../../types';
 import { loiApi } from '../../api/loiApi';
 
@@ -15,38 +16,56 @@ const fmtVND = (v: number) => v.toLocaleString('vi-VN') + 'đ';
 export default function DanhSachLoiScreen({ navigation }: Props) {
   const [danhSach, setDanhSach] = useState<Loi[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
       const data = await loiApi.layTatCa();
       setDanhSach(data);
     } catch (e: any) {
       Alert.alert('Lỗi', e.message);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
+  const executeXoa = async (loi: Loi) => {
+    try {
+      await loiApi.xoa(loi.id);
+      setDanhSach((prev) => prev.filter((x) => Number(x.id) !== Number(loi.id)));
+    } catch (e: any) { 
+      if (Platform.OS === 'web') {
+        window.alert(e.message || 'Có lỗi xảy ra');
+      } else {
+        Alert.alert('Lỗi', e.message); 
+      }
+    }
+  };
+
   const handleXoa = (loi: Loi) => {
-    Alert.alert(
-      'Xác nhận xóa',
-      `Bạn có chắc muốn xóa lỗi "${loi.tenLoi}"?\nHành động này không thể hoàn tác.`,
-      [
-        { text: 'Hủy', style: 'cancel' },
-        {
-          text: 'Xóa', style: 'destructive',
-          onPress: async () => {
-            try {
-              await loiApi.xoa(loi.id);
-              setDanhSach((prev) => prev.filter((x) => x.id !== loi.id));
-            } catch (e: any) { Alert.alert('Lỗi', e.message); }
+    const msg = `Bạn có chắc muốn xóa lỗi "${loi.tenLoi}"?\nHành động này không thể hoàn tác.`;
+    if (Platform.OS === 'web') {
+      if (window.confirm(msg)) {
+        executeXoa(loi);
+      }
+    } else {
+      Alert.alert(
+        'Xác nhận xóa',
+        msg,
+        [
+          { text: 'Hủy', style: 'cancel' },
+          {
+            text: 'Xóa', style: 'destructive',
+            onPress: () => executeXoa(loi),
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const renderItem = ({ item }: { item: Loi }) => (
@@ -117,7 +136,7 @@ export default function DanhSachLoiScreen({ navigation }: Props) {
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={load} tintColor="#5B6FE6" />
+            <RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor="#5B6FE6" />
           }
           ListHeaderComponent={
             danhSach.length > 0 ? (

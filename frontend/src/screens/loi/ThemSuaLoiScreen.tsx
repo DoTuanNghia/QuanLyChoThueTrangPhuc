@@ -45,17 +45,31 @@ export default function ThemSuaLoiScreen({ navigation, route }: Props) {
       const dto = { tenLoi: tenLoi.trim(), mucPhat: Number(mucPhat), moTa: moTa.trim() };
       if (isEdit) {
         await loiApi.sua(existing!.id, dto);
-        Alert.alert('Thành công ✅', 'Cập nhật lỗi thành công!', [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
+        if (Platform.OS === 'web') {
+          window.alert('Cập nhật lỗi thành công!');
+          navigation.goBack();
+        } else {
+          Alert.alert('Thành công ✅', 'Cập nhật lỗi thành công!', [
+            { text: 'OK', onPress: () => navigation.goBack() },
+          ]);
+        }
       } else {
         await loiApi.them(dto);
-        Alert.alert('Thành công ✅', 'Thêm lỗi mới thành công!', [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
+        if (Platform.OS === 'web') {
+          window.alert('Thêm lỗi mới thành công!');
+          navigation.goBack();
+        } else {
+          Alert.alert('Thành công ✅', 'Thêm lỗi mới thành công!', [
+            { text: 'OK', onPress: () => navigation.goBack() },
+          ]);
+        }
       }
     } catch (e: any) {
-      Alert.alert('Lỗi', e.message);
+      if (Platform.OS === 'web') {
+        window.alert(e.message || 'Có lỗi xảy ra');
+      } else {
+        Alert.alert('Lỗi', e.message);
+      }
     } finally {
       setLoading(false);
     }
