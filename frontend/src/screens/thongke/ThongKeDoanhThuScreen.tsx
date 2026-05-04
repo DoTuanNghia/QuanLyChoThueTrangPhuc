@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar,
-  ActivityIndicator, FlatList, Modal, Animated, ScrollView,
+  ActivityIndicator, FlatList, Animated,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList, ThongKeDoanhThu, HoaDonThongKe } from '../../types';
+import { RootStackParamList, ThongKeDoanhThu } from '../../types';
 import { tratrangphucApi } from '../../api/tratrangphucApi';
 
 type Props = {

@@ -16,7 +16,7 @@ export interface KhachHang {
 
 export interface NhanVien {
   id: number;
-  username: string; // Dùng username từ ThanhVien (không còn trường "ten")
+  username: string;
   ngaySinh?: string;
   diaChi?: string;
   soDienThoai?: string;
@@ -35,8 +35,7 @@ export interface ChiTietThue {
   soLuong: number;
   thanhTien: number;
   trangPhuc: TrangPhuc;
-  trangPhucId: number;    // ID trang phục, dùng trong request trả
-  // daTra và soLuongDaTra đã bị xóa khỏi backend ChiTietThueDTO
+  trangPhucId: number;
 }
 
 export interface PhieuThue {
@@ -46,7 +45,7 @@ export interface PhieuThue {
   ngayLap: string;
   tenKhachHang: string;
   chiTietThueList: ChiTietThue[];
-  danhSachChuaTra?: any[]; // from PhieuThueDTO backend
+  danhSachChuaTra?: any[];
 }
 
 // Request DTOs
@@ -56,7 +55,7 @@ export interface LoiPhatRequest {
 }
 
 export interface ChiTietTraRequest {
-  trangPhucId: number;  // Đã đổi từ chiTietThueId → trangPhucId
+  trangPhucId: number;
   soLuongTra: number;
   danhSachLoi: LoiPhatRequest[];
 }
@@ -72,8 +71,8 @@ export interface ChiTietLoiView {
   tenLoi: string;
   loiId: number;
   mucPhat: number;
-  tongLoi: number;   // mapped from backend ChiTietLoiViewDTO.tongLoi
-  soLuong: number;   // alias, same as tongLoi — backend field name
+  tongLoi: number;
+  soLuong: number;
   tienPhat: number;
 }
 

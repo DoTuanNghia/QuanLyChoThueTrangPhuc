@@ -42,7 +42,6 @@ export default function ChonTraScreen({ navigation, route }: Props) {
       .then(([lois]) => {
         setDanhSachLoi(lois);
 
-        // Backend trả về danhSachChuaTra (đã lọc sẵn chưa trả)
         const rawList = (phieuThue as any).danhSachChuaTra || phieuThue.chiTietThueList || [];
         setItems(rawList.map((c: any) => ({
           chiTietThue: {
@@ -101,7 +100,7 @@ export default function ChonTraScreen({ navigation, route }: Props) {
         phieuThueId: phieuThue.id,
         nhanVienId: nhanVien.id,
         danhSachTra: selected.map((i) => ({
-          trangPhucId: (i.chiTietThue as any).trangPhucId,  // Đổi từ chiTietThueId → trangPhucId
+          trangPhucId: (i.chiTietThue as any).trangPhucId,
           soLuongTra: parseInt(i.soLuongTra) || 1,
           danhSachLoi: i.danhSachLoi.map(({ loiId, soLuong }) => ({ loiId, soLuong })),
         })),
@@ -121,7 +120,6 @@ export default function ChonTraScreen({ navigation, route }: Props) {
     (i.chiTietThue as any).tenTrangPhuc || i.chiTietThue.trangPhuc?.ten || 'N/A';
   const getPrice = (i: ItemState) =>
     (i.chiTietThue as any).donGia ?? i.chiTietThue.trangPhuc?.donGia ?? 0;
-  // daTra/soLuongDaTra đã xóa → toàn bộ soLuong trong list là số còn cần trả
   const getRemain = (i: ItemState) => i.chiTietThue.soLuong;
   const getLoiTotal = (ds: ItemState['danhSachLoi']) =>
     ds.reduce((s, l) => s + l.mucPhat * l.soLuong, 0);
@@ -408,7 +406,6 @@ const TEXT_MID = '#5A6478';
 const TEXT_LIGHT = '#8892A6';
 const BORDER = '#E8EAF0';
 const RED = '#E53935';
-const GREEN = '#00897B';
 const MAX_W = 960;
 
 const styles = StyleSheet.create({
