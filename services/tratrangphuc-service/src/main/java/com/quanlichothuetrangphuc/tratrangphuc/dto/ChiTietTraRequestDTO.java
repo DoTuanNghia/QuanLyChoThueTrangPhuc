@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChiTietTraRequestDTO {
-    private int trangPhucId;              // ID trang phuc can tra
-    private int soLuongTra;               // So luong tra lan nay
-    private List<LoiPhatRequest> danhSachLoi = new ArrayList<>();  // Nhieu loi dong thoi
+    private int trangPhucId;              
+    private int soLuongTra;              
+    private List<LoiPhatRequest> danhSachLoi = new ArrayList<>();  
 }

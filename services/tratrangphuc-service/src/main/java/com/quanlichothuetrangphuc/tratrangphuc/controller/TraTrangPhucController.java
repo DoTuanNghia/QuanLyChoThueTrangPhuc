@@ -30,7 +30,6 @@ public class TraTrangPhucController {
     private final NhanVienRepository nhanVienRepository;
     private final DoanhThuService doanhThuService;
 
-    // =========== KHACH HANG ===========
 
     @GetMapping("/khach-hang")
     public ResponseEntity<List<KhachHang>> timKiemKhachHang(
@@ -50,28 +49,28 @@ public class TraTrangPhucController {
         return ResponseEntity.ok(list);
     }
 
-    // =========== NHAN VIEN ===========
+
 
     @GetMapping("/nhan-vien")
     public ResponseEntity<List<NhanVien>> layNhanVien() {
         return ResponseEntity.ok(nhanVienRepository.findAll());
     }
 
-    // =========== TRANG PHUC ===========
+
 
     @GetMapping("/trang-phuc")
     public ResponseEntity<List<TrangPhuc>> layTatCaTrangPhuc() {
         return ResponseEntity.ok(trangPhucService.layTatCa());
     }
 
-    // =========== PHIEU THUE ===========
+
 
     @GetMapping("/phieu-thue")
     public ResponseEntity<?> layTatCaPhieuThue() {
         return ResponseEntity.ok(phieuThueService.layTatCaDTO());
     }
 
-    // =========== TRA TRANG PHUC ===========
+
 
     @PostMapping("/tra/preview")
     public ResponseEntity<HoaDonTraDTO> previewHoaDon(@RequestBody PhieuTraRequestDTO request) {
@@ -107,7 +106,7 @@ public class TraTrangPhucController {
         }
     }
 
-    // =========== THONG KE DOANH THU ===========
+
 
     @GetMapping("/thong-ke/thang")
     public ResponseEntity<List<ThongKeDoanhThuDTO>> thongKeTheoThang() {

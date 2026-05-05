@@ -8,6 +8,6 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoiPhatRequest {
-    private int loiId;     // ID lay tu loihongphat-service
-    private int soLuong;   // So luong loi nay tren trang phuc
+    private int loiId;     
+    private int soLuong;   
 }

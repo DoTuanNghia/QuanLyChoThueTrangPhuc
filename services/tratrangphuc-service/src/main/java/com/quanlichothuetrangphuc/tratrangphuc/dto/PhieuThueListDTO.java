@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PhieuThueListDTO {
     private int id;
-    private String ngayLap;        // "dd/MM/yyyy"
+    private String ngayLap;        
     private float tienCoc;
     private float tongTien;
-    private String loai;           // ONLINE, OFFLINE
+    private String loai;           
     private String status;
     private String tenKhachHang;
     private String soDienThoaiKH;

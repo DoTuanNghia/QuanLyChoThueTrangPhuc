@@ -12,15 +12,13 @@ public class PhieuTraFormDTO {
     private int phieuThueId;
     private int nhanVienId;
 
-    // Danh sach cac trang phuc duoc tich chon tra
+   
     private List<Integer> trangPhucIds = new ArrayList<>();
     private List<Integer> soLuongTras = new ArrayList<>();
     private List<Integer> loiIds = new ArrayList<>();
     private List<Integer> soLois = new ArrayList<>();
 
-    /**
-     * Chuyen sang PhieuTraRequestDTO de truyen vao Service.
-     */
+   
     public PhieuTraRequestDTO toRequestDTO() {
         List<ChiTietTraRequestDTO> danhSachTra = new ArrayList<>();
         for (int i = 0; i < trangPhucIds.size(); i++) {

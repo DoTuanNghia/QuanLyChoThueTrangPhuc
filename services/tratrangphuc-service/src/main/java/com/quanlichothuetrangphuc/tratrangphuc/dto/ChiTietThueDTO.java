@@ -11,10 +11,10 @@ public class ChiTietThueDTO {
     private int id;
     private int soLuong;
     private String tenTrangPhuc;
-    private float donGia;            // giá/ngày
-    private String ngayThue;         // "dd/MM/yyyy"
+    private float donGia;            
+    private String ngayThue;         
     private float thanhTien;
-    private long soNgayThue;         // số ngày tính đến hôm nay
-    private float tienThueDenNay;    // = donGia * soNgayThue * soLuong
+    private long soNgayThue;         
+    private float tienThueDenNay;   
     private int trangPhucId;
 }

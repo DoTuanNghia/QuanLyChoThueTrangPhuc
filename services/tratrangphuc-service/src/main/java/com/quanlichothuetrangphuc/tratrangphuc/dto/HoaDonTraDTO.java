@@ -10,28 +10,28 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HoaDonTraDTO {
-    // Thông tin khách hàng
+
     private String tenKhachHang;
     private String soDienThoaiKH;
     private String diaChiKH;
 
-    // Thông tin phiếu thuê gốc
+    
     private int phieuThueId;
-    private String ngayThue;   // "dd/MM/yyyy"
+    private String ngayThue;   
     private float tienCoc;
 
-    // Ngày trả
-    private String ngayTra;    // "dd/MM/yyyy"
 
-    // Nhân viên
+    private String ngayTra;   
+
+    
     private String tenNhanVien;
 
-    // Danh sách chi tiết trả
+    
     private List<HoaDonChiTietDTO> danhSachChiTiet;
 
-    // Tổng tiền
-    private float tongTienThue;    // tổng tiền thuê các TP trả
-    private float tongTienPhat;    // tổng tiền phạt
-    private float tongThanhToan;   // = tongTienThue + tongTienPhat
-    private float soTienConLai;    // = tongThanhToan - tienCoc (dương: KH phải trả thêm, âm: trả lại KH)
+    
+    private float tongTienThue;    
+    private float tongTienPhat;    
+    private float tongThanhToan;   
+    private float soTienConLai;    
 }

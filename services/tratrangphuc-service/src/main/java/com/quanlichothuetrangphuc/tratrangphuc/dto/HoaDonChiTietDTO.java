@@ -13,10 +13,10 @@ public class HoaDonChiTietDTO {
     private String tenTrangPhuc;
     private int soLuong;
     private float donGia;
-    private String ngayThue;          // "dd/MM/yyyy"
+    private String ngayThue;          
     private long soNgayThue;
     private float tienThue;
-    private float tienPhat;           // tong tien phat cho item nay
-    private List<ChiTietLoiViewDTO> danhSachLoi;  // breakdown theo tung loi
-    private float tongCong;           // tienThue + tienPhat
+    private float tienPhat;           
+    private List<ChiTietLoiViewDTO> danhSachLoi;  
+    private float tongCong;          
 }
