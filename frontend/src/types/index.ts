@@ -44,6 +44,8 @@ export interface PhieuThue {
   tongTien: number;
   ngayLap: string;
   tenKhachHang: string;
+  taiSanDamBao?: string;   // THE_SINH_VIEN, CCCD, BANG_LAI_XE, KHAC
+  moTaTaiSan?: string;     // Mô tả chi tiết tài sản
   chiTietThueList: ChiTietThue[];
   danhSachChuaTra?: any[];
 }
@@ -97,6 +99,15 @@ export interface HoaDonTra {
   tienCoc: number;
   ngayTra: string;
   tenNhanVien: string;
+  // Tài sản đảm bảo
+  taiSanDamBao?: string;
+  moTaTaiSan?: string;
+  // Trạng thái hoàn trả
+  daTraTienCoc?: boolean;
+  tienCocDaTra?: number;
+  daTraTaiSan?: boolean;
+  taiSanDaTra?: string;
+  // Chi tiết
   danhSachChiTiet: HoaDonChiTiet[];
   tongTienThue: number;
   tongTienPhat: number;

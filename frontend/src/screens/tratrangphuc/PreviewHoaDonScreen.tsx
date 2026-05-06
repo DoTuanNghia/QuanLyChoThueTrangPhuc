@@ -61,6 +61,16 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
   const soTienConLai = Number(hoaDon.soTienConLai ?? (hoaDon.tongThanhToan - hoaDon.tienCoc));
   const khachTraThem = soTienConLai > 0;
 
+  const getTaiSanLabel = (code?: string) => {
+    switch (code) {
+      case 'THE_SINH_VIEN': return 'Thẻ sinh viên';
+      case 'CCCD': return 'Căn cước công dân';
+      case 'BANG_LAI_XE': return 'Bằng lái xe';
+      case 'KHAC': return 'Tài sản khác';
+      default: return code || 'Không rõ';
+    }
+  };
+
   const handleXacNhan = async () => {
     try {
       setLoading(true);
@@ -126,7 +136,57 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
                 <Text style={styles.depositLabel}>💰 Tiền đặt cọc</Text>
                 <Text style={styles.depositVal}>{fmtVND(hoaDon.tienCoc)}</Text>
               </View>
+
+              {/* Tài sản đảm bảo */}
+              {hoaDon.taiSanDamBao ? (
+                <View style={styles.taiSanBox}>
+                  <Text style={styles.taiSanBoxTitle}>🔒 Tài sản đảm bảo</Text>
+                  <View style={styles.taiSanDetail}>
+                    <Text style={styles.taiSanType}>{getTaiSanLabel(hoaDon.taiSanDamBao)}</Text>
+                    {hoaDon.moTaTaiSan ? (
+                      <Text style={styles.taiSanMoTa}>{hoaDon.moTaTaiSan}</Text>
+                    ) : null}
+                  </View>
+                </View>
+              ) : null}
             </View>
+
+            {/* Middle: Hoàn trả cọc & tài sản */}
+            {(hoaDon.tienCoc > 0 || hoaDon.taiSanDamBao) ? (
+              <View style={[styles.card, { flex: 1 }]}>
+                <Text style={styles.cardLabel}>HOÀN TRẢ CHO KHÁCH HÀNG</Text>
+                
+                {hoaDon.tienCoc > 0 && (
+                  <View style={styles.hoanTraItem}>
+                    <View style={styles.hoanTraIconBox}>
+                      <Text style={styles.hoanTraIcon}>💰</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.hoanTraTitle}>Hoàn tiền đặt cọc</Text>
+                      <Text style={styles.hoanTraSub}>Trừ vào tổng thanh toán</Text>
+                    </View>
+                    <Text style={styles.hoanTraAmount}>{fmtVND(hoaDon.tienCoc)}</Text>
+                  </View>
+                )}
+
+                {hoaDon.taiSanDamBao && (
+                  <View style={styles.hoanTraItem}>
+                    <View style={[styles.hoanTraIconBox, { backgroundColor: '#FFF3E0' }]}>
+                      <Text style={styles.hoanTraIcon}>🪪</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.hoanTraTitle}>Trả lại {getTaiSanLabel(hoaDon.taiSanDamBao)}</Text>
+                      {hoaDon.moTaTaiSan ? (
+                        <Text style={styles.hoanTraSub}>{hoaDon.moTaTaiSan}</Text>
+                      ) : null}
+                    </View>
+                    <View style={styles.hoanTraCheck}>
+                      <Text style={styles.hoanTraCheckText}>✓ Trả</Text>
+                    </View>
+                  </View>
+                )}
+              </View>
+            ) : null}
 
             {/* Right: Summary */}
             <View style={[styles.card, styles.colRight]}>
@@ -153,6 +213,16 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
                   {fmtVND(Math.abs(soTienConLai))}
                 </Text>
               </View>
+
+              {/* Nhắc nhở hoàn trả tài sản */}
+              {hoaDon.taiSanDamBao && (
+                <View style={styles.reminderBox}>
+                  <Text style={styles.reminderIcon}>⚠️</Text>
+                  <Text style={styles.reminderText}>
+                    Nhớ trả lại <Text style={{ fontWeight: '700' }}>{getTaiSanLabel(hoaDon.taiSanDamBao)}</Text> cho khách hàng
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
 
@@ -464,4 +534,42 @@ const styles = StyleSheet.create({
     backgroundColor: ACCENT, alignItems: 'center',
   },
   qrConfirmText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+
+  // Tài sản đảm bảo
+  taiSanBox: {
+    marginTop: 12, backgroundColor: '#FFF8E1', borderRadius: 10, padding: 12,
+    borderWidth: 1, borderColor: '#FFE082',
+  },
+  taiSanBoxTitle: { fontSize: 13, fontWeight: '700', color: '#E65100', marginBottom: 6 },
+  taiSanDetail: { gap: 2 },
+  taiSanType: { fontSize: 14, fontWeight: '700', color: '#BF360C' },
+  taiSanMoTa: { fontSize: 12, color: '#795548', marginTop: 2 },
+
+  // Hoàn trả section
+  hoanTraItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F4F6FB',
+  },
+  hoanTraIconBox: {
+    width: 40, height: 40, borderRadius: 12, backgroundColor: '#E8F5E9',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  hoanTraIcon: { fontSize: 18 },
+  hoanTraTitle: { fontSize: 14, fontWeight: '700', color: '#1B2A4A' },
+  hoanTraSub: { fontSize: 12, color: '#8892A6', marginTop: 2 },
+  hoanTraAmount: { fontSize: 16, fontWeight: '800', color: '#00897B' },
+  hoanTraCheck: {
+    backgroundColor: '#E8F5E9', paddingHorizontal: 10, paddingVertical: 5,
+    borderRadius: 8, borderWidth: 1, borderColor: '#C8E6C9',
+  },
+  hoanTraCheckText: { fontSize: 12, fontWeight: '700', color: '#2E7D32' },
+
+  // Reminder
+  reminderBox: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    marginTop: 12, backgroundColor: '#FFF8E1', borderRadius: 10, padding: 12,
+    borderWidth: 1, borderColor: '#FFE082',
+  },
+  reminderIcon: { fontSize: 16 },
+  reminderText: { fontSize: 12, color: '#E65100', flex: 1, lineHeight: 18 },
 });

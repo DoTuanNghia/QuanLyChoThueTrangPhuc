@@ -20,5 +20,7 @@ public class PhieuThueDTO {
     private String soDienThoaiKH;
     private String diaChiKH;
     private int khachHangId;
+    private String taiSanDamBao;
+    private String moTaTaiSan;
     private List<ChiTietThueDTO> danhSachChuaTra;
 }

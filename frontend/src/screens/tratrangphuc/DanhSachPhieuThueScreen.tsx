@@ -34,6 +34,16 @@ export default function DanhSachPhieuThueScreen({ navigation, route }: Props) {
 
   const fmtVND = (v: number) => v.toLocaleString('vi-VN') + 'đ';
 
+  const getTaiSanLabel = (code: string) => {
+    switch (code) {
+      case 'THE_SINH_VIEN': return 'Thẻ sinh viên';
+      case 'CCCD': return 'Căn cước công dân';
+      case 'BANG_LAI_XE': return 'Bằng lái xe';
+      case 'KHAC': return 'Tài sản khác';
+      default: return code || 'Không rõ';
+    }
+  };
+
   const renderItem = ({ item, index }: { item: PhieuThue; index: number }) => {
     const soLoai = (item as any).danhSachChuaTra?.length ?? item.chiTietThueList?.length ?? 0;
     return (
@@ -77,6 +87,23 @@ export default function DanhSachPhieuThueScreen({ navigation, route }: Props) {
               <Text style={styles.moneyVal}>{fmtVND(item.tongTien)}</Text>
             </View>
           </View>
+
+          {/* Tài sản đảm bảo */}
+          {(item as any).taiSanDamBao ? (
+            <View style={styles.taiSanRow}>
+              <View style={styles.taiSanBadge}>
+                <Text style={styles.taiSanIcon}>🔒</Text>
+                <Text style={styles.taiSanLabel}>
+                  {getTaiSanLabel((item as any).taiSanDamBao)}
+                </Text>
+              </View>
+              {(item as any).moTaTaiSan ? (
+                <Text style={styles.taiSanDesc} numberOfLines={1}>
+                  {(item as any).moTaTaiSan}
+                </Text>
+              ) : null}
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.arrowCol}>
@@ -233,4 +260,13 @@ const styles = StyleSheet.create({
   emptyIcon: { fontSize: 56, marginBottom: 16 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1B2A4A', marginBottom: 8 },
   emptyText: { fontSize: 13, color: '#8892A6', textAlign: 'center', lineHeight: 20 },
+
+  taiSanRow: {
+    flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 8,
+    backgroundColor: '#FFF8E1', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: '#FFE082',
+  },
+  taiSanBadge: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  taiSanIcon: { fontSize: 13 },
+  taiSanLabel: { fontSize: 12, fontWeight: '700', color: '#E65100' },
+  taiSanDesc: { fontSize: 11, color: '#795548', flex: 1 },
 });

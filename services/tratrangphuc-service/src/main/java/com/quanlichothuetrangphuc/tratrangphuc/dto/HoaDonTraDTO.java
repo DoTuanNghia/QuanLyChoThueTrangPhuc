@@ -26,6 +26,16 @@ public class HoaDonTraDTO {
     
     private String tenNhanVien;
 
+    // Tài sản đảm bảo
+    private String taiSanDamBao;   // Loại tài sản: THE_SINH_VIEN, CCCD, BANG_LAI_XE...
+    private String moTaTaiSan;     // Mô tả chi tiết
+
+    // Trạng thái hoàn trả
+    private boolean daTraTienCoc;
+    private float tienCocDaTra;
+    private boolean daTraTaiSan;
+    private String taiSanDaTra;
+
     
     private List<HoaDonChiTietDTO> danhSachChiTiet;
 

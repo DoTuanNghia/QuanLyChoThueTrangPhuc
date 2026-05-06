@@ -34,6 +34,18 @@ public class PhieuTra {
     @JoinColumn(name = "phieu_thue_id")
     private PhieuThue phieuThue;
 
+    @Column(name = "da_tra_tien_coc")
+    private boolean daTraTienCoc;  // Đã hoàn trả tiền cọc cho KH chưa
+
+    @Column(name = "tien_coc_da_tra")
+    private float tienCocDaTra;  // Số tiền cọc đã trả lại
+
+    @Column(name = "da_tra_tai_san")
+    private boolean daTraTaiSan;  // Đã trả lại tài sản đảm bảo cho KH chưa
+
+    @Column(name = "tai_san_da_tra", length = 500)
+    private String taiSanDaTra;  // Mô tả tài sản đã trả (THE_SINH_VIEN, CCCD...)
+
     @OneToMany(mappedBy = "phieuTra", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<ChiTietTra> chiTietTraList;

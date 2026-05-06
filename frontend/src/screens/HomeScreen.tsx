@@ -66,7 +66,7 @@ export default function HomeScreen({ navigation, route }: Props) {
             <Text style={styles.cardIcon}>👗</Text>
           </View>
           <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>Trả Trang Phục & Thanh Toán</Text>
+            <Text style={styles.cardTitle}>Trả Trang Phục </Text>
             <Text style={styles.cardDesc}>Xử lý trả đồ, ghi nhận lỗi hỏng và tính phạt</Text>
           </View>
           <View style={styles.arrowBox}>

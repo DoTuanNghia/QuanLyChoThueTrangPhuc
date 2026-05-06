@@ -124,6 +124,16 @@ export default function ChonTraScreen({ navigation, route }: Props) {
   const getLoiTotal = (ds: ItemState['danhSachLoi']) =>
     ds.reduce((s, l) => s + l.mucPhat * l.soLuong, 0);
 
+  const getTaiSanLabel = (code: string) => {
+    switch (code) {
+      case 'THE_SINH_VIEN': return 'Thẻ sinh viên';
+      case 'CCCD': return 'Căn cước công dân';
+      case 'BANG_LAI_XE': return 'Bằng lái xe';
+      case 'KHAC': return 'Tài sản khác';
+      default: return code || 'Không rõ';
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingBox}>
@@ -186,6 +196,39 @@ export default function ChonTraScreen({ navigation, route }: Props) {
                 </Text>
               </View>
             </View>
+
+            {/* Thông tin tài sản đảm bảo */}
+            {(phieuThue as any).taiSanDamBao ? (
+              <View style={styles.taiSanInfoBox}>
+                <View style={styles.taiSanInfoHeader}>
+                  <Text style={styles.taiSanInfoIcon}>🔒</Text>
+                  <Text style={styles.taiSanInfoTitle}>Tài sản đảm bảo cần trả lại</Text>
+                </View>
+                <View style={styles.taiSanInfoBody}>
+                  <View style={styles.taiSanInfoBadge}>
+                    <Text style={styles.taiSanInfoBadgeText}>
+                      {getTaiSanLabel((phieuThue as any).taiSanDamBao)}
+                    </Text>
+                  </View>
+                  {(phieuThue as any).moTaTaiSan ? (
+                    <Text style={styles.taiSanInfoDesc}>
+                      {(phieuThue as any).moTaTaiSan}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
+            ) : null}
+
+            {/* Tiền cọc */}
+            {phieuThue.tienCoc > 0 && (
+              <View style={styles.cocInfoBox}>
+                <Text style={styles.cocInfoIcon}>💰</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cocInfoTitle}>Tiền đặt cọc: {fmtVND(phieuThue.tienCoc)}</Text>
+                  <Text style={styles.cocInfoSub}>Sẽ được trừ vào tổng thanh toán khi trả</Text>
+                </View>
+              </View>
+            )}
 
             <View style={styles.itemGrid}>
               {items.map((item, idx) => (
@@ -638,4 +681,34 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25, shadowRadius: 10, elevation: 6,
   },
   modalApplyText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+
+  // Tài sản đảm bảo info
+  taiSanInfoBox: {
+    backgroundColor: '#FFF8E1', borderRadius: 12, padding: 14,
+    marginBottom: 14, borderWidth: 1, borderColor: '#FFE082',
+  },
+  taiSanInfoHeader: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8,
+  },
+  taiSanInfoIcon: { fontSize: 16 },
+  taiSanInfoTitle: { fontSize: 13, fontWeight: '700', color: '#E65100' },
+  taiSanInfoBody: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+  },
+  taiSanInfoBadge: {
+    backgroundColor: '#FFE0B2', paddingHorizontal: 10, paddingVertical: 5,
+    borderRadius: 8, borderWidth: 1, borderColor: '#FFB74D',
+  },
+  taiSanInfoBadgeText: { fontSize: 13, fontWeight: '700', color: '#BF360C' },
+  taiSanInfoDesc: { fontSize: 12, color: '#795548' },
+
+  // Tiền cọc info
+  cocInfoBox: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#E8F5E9', borderRadius: 12, padding: 14,
+    marginBottom: 14, borderWidth: 1, borderColor: '#C8E6C9',
+  },
+  cocInfoIcon: { fontSize: 18 },
+  cocInfoTitle: { fontSize: 14, fontWeight: '700', color: '#2E7D32' },
+  cocInfoSub: { fontSize: 12, color: '#66BB6A', marginTop: 2 },
 });
