@@ -394,7 +394,7 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
                 onPress={handleXacNhan}
                 disabled={loading}
               >
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.qrConfirmText}>✅ Xác nhận đã thanh toán</Text>}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.qrConfirmText}>Đã thanh toán</Text>}
               </TouchableOpacity>
             </View>
           </View>

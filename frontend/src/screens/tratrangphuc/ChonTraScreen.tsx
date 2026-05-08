@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, Alert,
-  ActivityIndicator, ScrollView, Modal, TextInput,
+  ActivityIndicator, ScrollView, Modal, TextInput, Platform
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -107,15 +107,53 @@ export default function ChonTraScreen({ navigation, route }: Props) {
   };
 
   const handleXemHoaDon = async () => {
-    const selected = items.filter((i) => i.duocChon);
-    if (selected.length === 0) {
-      if (selectedTaiSanIds.length > 0) {
-        Alert.alert('Lỗi', 'Bạn chưa chọn trang phục trả', [{ text: 'OK' }]);
+    const danhSachTaiSan: TaiSanDamBao[] = (phieuThue as any).danhSachTaiSan || [];
+    const chuaTraTaiSan = danhSachTaiSan.filter(t => !t.daTra);
+
+    if (chuaTraTaiSan.length > 0 && selectedTaiSanIds.length === 0) {
+      if (Platform.OS === 'web') {
+        window.alert('Vui lòng chọn ít nhất 1 tài sản đảm bảo để trả');
       } else {
-        Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 trang phục để trả', [{ text: 'OK' }]);
+        Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 tài sản đảm bảo để trả', [{ text: 'OK' }]);
       }
       return;
     }
+
+    const selected = items.filter((i) => i.duocChon);
+    if (selected.length === 0) {
+      if (selectedTaiSanIds.length > 0) {
+        if (Platform.OS === 'web') {
+          window.alert('Bạn chưa chọn trang phục trả');
+        } else {
+          Alert.alert('Lỗi', 'Bạn chưa chọn trang phục trả', [{ text: 'OK' }]);
+        }
+      } else {
+        if (Platform.OS === 'web') {
+          window.alert('Vui lòng chọn ít nhất 1 trang phục để trả');
+        } else {
+          Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 trang phục để trả', [{ text: 'OK' }]);
+        }
+      }
+      return;
+    }
+
+    // Validate quantity
+    for (const i of selected) {
+      const sl = parseInt(i.soLuongTra, 10);
+      if (isNaN(sl) || sl < 1) {
+        const msg = `Số lượng trả của "${getName(i)}" phải tối thiểu là 1`;
+        if (Platform.OS === 'web') window.alert(msg);
+        else Alert.alert('Lỗi', msg, [{ text: 'OK' }]);
+        return;
+      }
+      if (sl > getRemain(i)) {
+        const msg = `Số lượng trả của "${getName(i)}" không được vượt quá số lượng đang nợ (${getRemain(i)})`;
+        if (Platform.OS === 'web') window.alert(msg);
+        else Alert.alert('Lỗi', msg, [{ text: 'OK' }]);
+        return;
+      }
+    }
+
     try {
       setSubmitting(true);
       const request = {
@@ -123,7 +161,7 @@ export default function ChonTraScreen({ navigation, route }: Props) {
         nhanVienId: nhanVien.id,
         danhSachTra: selected.map((i) => ({
           trangPhucId: (i.chiTietThue as any).trangPhucId,
-          soLuongTra: parseInt(i.soLuongTra) || 1,
+          soLuongTra: parseInt(i.soLuongTra, 10),
           danhSachLoi: i.danhSachLoi.map(({ loiId, soLuong }) => ({ loiId, soLuong })),
         })),
         danhSachTaiSanTraId: selectedTaiSanIds,
