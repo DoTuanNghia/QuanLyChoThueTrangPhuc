@@ -138,7 +138,24 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
               </View>
 
               {/* Tài sản đảm bảo */}
-              {hoaDon.taiSanDamBao ? (
+              {(hoaDon.danhSachTaiSan || []).length > 0 ? (
+                <View style={styles.taiSanBox}>
+                  <Text style={styles.taiSanBoxTitle}>🔒 Tài sản đảm bảo</Text>
+                  <View style={styles.taiSanDetailContainer}>
+                    {hoaDon.danhSachTaiSan!.map(ts => (
+                      <View key={ts.id} style={styles.taiSanDetailRow}>
+                        <Text style={[styles.taiSanType, ts.daTra && { color: '#9E9E9E', textDecorationLine: 'line-through' }]}>
+                          • {getTaiSanLabel(ts.loai)}
+                        </Text>
+                        {ts.moTa ? (
+                          <Text style={[styles.taiSanMoTa, ts.daTra && { color: '#BDBDBD' }]}>- {ts.moTa}</Text>
+                        ) : null}
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              ) : hoaDon.taiSanDamBao ? (
+                // Backward compat
                 <View style={styles.taiSanBox}>
                   <Text style={styles.taiSanBoxTitle}>🔒 Tài sản đảm bảo</Text>
                   <View style={styles.taiSanDetail}>
@@ -152,7 +169,7 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
             </View>
 
             {/* Middle: Hoàn trả cọc & tài sản */}
-            {(hoaDon.tienCoc > 0 || hoaDon.taiSanDamBao) ? (
+            {(hoaDon.tienCoc > 0 || (hoaDon.danhSachTaiSanSeTra && hoaDon.danhSachTaiSanSeTra.length > 0) || hoaDon.taiSanDamBao) ? (
               <View style={[styles.card, { flex: 1 }]}>
                 <Text style={styles.cardLabel}>HOÀN TRẢ CHO KHÁCH HÀNG</Text>
                 
@@ -169,7 +186,25 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
                   </View>
                 )}
 
-                {hoaDon.taiSanDamBao && (
+                {/* Multiple assets to return */}
+                {hoaDon.danhSachTaiSanSeTra && hoaDon.danhSachTaiSanSeTra.length > 0 ? (
+                  hoaDon.danhSachTaiSanSeTra.map(ts => (
+                    <View key={ts.id} style={styles.hoanTraItem}>
+                      <View style={[styles.hoanTraIconBox, { backgroundColor: '#FFF3E0' }]}>
+                        <Text style={styles.hoanTraIcon}>🪪</Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.hoanTraTitle}>Trả lại {getTaiSanLabel(ts.loai)}</Text>
+                        {ts.moTa ? (
+                          <Text style={styles.hoanTraSub}>{ts.moTa}</Text>
+                        ) : null}
+                      </View>
+                      <View style={styles.hoanTraCheck}>
+                        <Text style={styles.hoanTraCheckText}>✓ Trả</Text>
+                      </View>
+                    </View>
+                  ))
+                ) : hoaDon.taiSanDamBao ? (
                   <View style={styles.hoanTraItem}>
                     <View style={[styles.hoanTraIconBox, { backgroundColor: '#FFF3E0' }]}>
                       <Text style={styles.hoanTraIcon}>🪪</Text>
@@ -184,7 +219,7 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
                       <Text style={styles.hoanTraCheckText}>✓ Trả</Text>
                     </View>
                   </View>
-                )}
+                ) : null}
               </View>
             ) : null}
 
@@ -203,26 +238,36 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
               <View style={[styles.grandBox, { backgroundColor: khachTraThem ? '#FFF3F3' : '#E8F5E9' }]}>
                 <View>
                   <Text style={styles.grandLabel}>
-                    {khachTraThem ? '⬆️ KHÁCH CẦN TRẢ THÊM' : '⬇️ TRẢ LẠI KHÁCH HÀNG'}
+                    {khachTraThem ? ' KHÁCH CẦN TRẢ THÊM' : 'TRẢ LẠI KHÁCH HÀNG'}
                   </Text>
-                  <Text style={styles.grandSub}>
+                  {/* <Text style={styles.grandSub}>
                     {khachTraThem ? 'Số tiền KH phải thanh toán thêm' : 'Số tiền hoàn lại cho KH'}
-                  </Text>
+                  </Text> */}
                 </View>
+                <Text></Text>
                 <Text style={[styles.grandVal, { color: khachTraThem ? '#E53935' : '#00897B' }]}>
                   {fmtVND(Math.abs(soTienConLai))}
                 </Text>
               </View>
 
               {/* Nhắc nhở hoàn trả tài sản */}
-              {hoaDon.taiSanDamBao && (
+              {(hoaDon.danhSachTaiSanSeTra && hoaDon.danhSachTaiSanSeTra.length > 0) ? (
+                <View style={styles.reminderBox}>
+                  <Text style={styles.reminderIcon}>⚠️</Text>
+                  <Text style={styles.reminderText}>
+                    Nhớ trả lại các tài sản: <Text style={{ fontWeight: '700' }}>
+                      {hoaDon.danhSachTaiSanSeTra.map(ts => getTaiSanLabel(ts.loai)).join(', ')}
+                    </Text> cho khách hàng
+                  </Text>
+                </View>
+              ) : hoaDon.taiSanDamBao ? (
                 <View style={styles.reminderBox}>
                   <Text style={styles.reminderIcon}>⚠️</Text>
                   <Text style={styles.reminderText}>
                     Nhớ trả lại <Text style={{ fontWeight: '700' }}>{getTaiSanLabel(hoaDon.taiSanDamBao)}</Text> cho khách hàng
                   </Text>
                 </View>
-              )}
+              ) : null}
             </View>
           </View>
 
@@ -542,6 +587,8 @@ const styles = StyleSheet.create({
   },
   taiSanBoxTitle: { fontSize: 13, fontWeight: '700', color: '#E65100', marginBottom: 6 },
   taiSanDetail: { gap: 2 },
+  taiSanDetailContainer: { gap: 6 },
+  taiSanDetailRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   taiSanType: { fontSize: 14, fontWeight: '700', color: '#BF360C' },
   taiSanMoTa: { fontSize: 12, color: '#795548', marginTop: 2 },
 

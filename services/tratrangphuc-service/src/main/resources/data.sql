@@ -141,3 +141,36 @@ INSERT INTO chi_tiet_tra (so_luong, thanh_tien, trang_phuc_id, phieu_tra_id) VAL
 INSERT INTO chi_tiet_tra (so_luong, thanh_tien, trang_phuc_id, phieu_tra_id) VALUES
 (1, 130000, 5, 3);
 
+-- 10. Tài sản đảm bảo
+-- Thêm nhiều tài sản cho một số phiếu thuê để thể hiện mối quan hệ 1-Nhiều
+INSERT INTO tai_san_dam_bao (loai, mo_ta, da_tra, phieu_thue_id) VALUES
+('THE_SINH_VIEN', 'Thẻ SV: B21DCCN001 - Nguyễn Thị Lan', 1, 1),
+('CCCD', 'CCCD: 079123456789 - Nguyễn Thị Lan', 1, 1),
+
+('CCCD', 'CCCD: 036099001234 - Nguyễn Văn Hùng', 1, 2),
+('KHAC', 'Chìa khóa xe máy SH biển số 59X1-123.45', 1, 2),
+
+('THE_SINH_VIEN', 'Thẻ SV: B21DCCN045 - Phạm Thị Mai', 0, 3),
+('BANG_LAI_XE', 'GPLX A1: 790123456', 0, 3),
+
+('CCCD', 'CCCD: 025088005678 - Trần Hoàng Bách', 0, 4),
+
+('BANG_LAI_XE', 'GPLX: B2-123456 - Lê Thị Diễm', 0, 5),
+('KHAC', 'Cà vẹt xe ô tô BKS 30A-999.99', 0, 5),
+
+('CCCD', 'CCCD: 079077009876 - Phan Văn Khánh', 0, 6),
+('KHAC', 'Laptop Macbook Pro 14 M1', 0, 6),
+
+('THE_SINH_VIEN', 'Thẻ SV: B22DCCN100 - Vũ Tú Anh', 0, 7),
+('CCCD', 'CCCD: 012345678901 - Vũ Tú Anh', 0, 7),
+
+('CCCD', 'CCCD: 031066004321 - Hồ Quang Hiếu', 0, 8),
+('BANG_LAI_XE', 'GPLX B2: 310123456', 0, 8),
+('KHAC', 'Chìa khóa xe Mercedes', 0, 8),
+
+('BANG_LAI_XE', 'GPLX: C-654321 - Đặng Thu Thảo', 0, 9),
+
+('THE_SINH_VIEN', 'Thẻ SV: B20DCCN088 - Lê Thị Diễm', 0, 10),
+
+('CCCD', 'CCCD: 089055003210 - Bùi Tấn Trường', 0, 11),
+('KHAC', 'Đăng ký xe máy Honda Vision', 0, 11);

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class PhieuTraServiceImpl implements PhieuTraService {
     private final PhieuThueRepository phieuThueRepository;
     private final TrangPhucRepository trangPhucRepository;
     private final NhanVienRepository nhanVienRepository;
+    private final TaiSanDamBaoRepository taiSanDamBaoRepository;
     private final LoiClient loiClient;
 
     @Override
@@ -47,14 +49,34 @@ public class PhieuTraServiceImpl implements PhieuTraService {
         hoadon.setNgayTra(homNay.format(FMT));
         hoadon.setTenNhanVien(nhanVien.getUsername());
 
-        // Tài sản đảm bảo
-        hoadon.setTaiSanDamBao(phieuThue.getTaiSanDamBao());
-        hoadon.setMoTaTaiSan(phieuThue.getMoTaTaiSan());
-        // Trong preview, luôn đánh dấu cần trả lại
+        // Tài sản đảm bảo - map to new list
+        List<TaiSanDamBao> allTaiSan = phieuThue.getDanhSachTaiSan();
+        List<TaiSanDamBaoDTO> allTaiSanDTOs = allTaiSan.stream()
+                .map(ts -> new TaiSanDamBaoDTO(ts.getId(), ts.getLoai(), ts.getMoTa(), ts.isDaTra(), phieuThue.getId()))
+                .collect(Collectors.toList());
+        hoadon.setDanhSachTaiSan(allTaiSanDTOs);
+
+        // Backward compat
+        if (!allTaiSan.isEmpty()) {
+            hoadon.setTaiSanDamBao(allTaiSan.get(0).getLoai());
+            hoadon.setMoTaTaiSan(allTaiSan.get(0).getMoTa());
+        } else {
+            hoadon.setTaiSanDamBao(phieuThue.getTaiSanDamBao());
+            hoadon.setMoTaTaiSan(phieuThue.getMoTaTaiSan());
+        }
+
+        // Tài sản sẽ trả trong lần này (theo selection của frontend)
+        List<Integer> taiSanTraIds = request.getDanhSachTaiSanTraId();
+        List<TaiSanDamBaoDTO> seTraDTOs = allTaiSan.stream()
+                .filter(ts -> taiSanTraIds.contains(ts.getId()))
+                .map(ts -> new TaiSanDamBaoDTO(ts.getId(), ts.getLoai(), ts.getMoTa(), ts.isDaTra(), phieuThue.getId()))
+                .collect(Collectors.toList());
+        hoadon.setDanhSachTaiSanSeTra(seTraDTOs);
+
+        // Trong preview, đánh dấu cần trả lại
         hoadon.setDaTraTienCoc(phieuThue.getTienCoc() > 0);
         hoadon.setTienCocDaTra(phieuThue.getTienCoc());
-        hoadon.setDaTraTaiSan(phieuThue.getTaiSanDamBao() != null && !phieuThue.getTaiSanDamBao().isEmpty());
-        hoadon.setTaiSanDaTra(phieuThue.getTaiSanDamBao());
+        hoadon.setDaTraTaiSan(!seTraDTOs.isEmpty());
 
         List<HoaDonChiTietDTO> chiTietList = new ArrayList<>();
         float tongTienThue = 0, tongTienPhat = 0;
@@ -128,12 +150,32 @@ public class PhieuTraServiceImpl implements PhieuTraService {
         phieuTra.setNhanVien(nhanVien);
         phieuTra.setPhieuThue(phieuThue);
 
-        // Hoàn trả tiền cọc và tài sản đảm bảo
+        // Hoàn trả tiền cọ và tài sản đảm bảo
         float tienCocHoanTra = phieuThue.getTienCoc();
         phieuTra.setDaTraTienCoc(tienCocHoanTra > 0);
         phieuTra.setTienCocDaTra(tienCocHoanTra);
 
-        if (phieuThue.getTaiSanDamBao() != null && !phieuThue.getTaiSanDamBao().isEmpty()) {
+        // Xử lý trả tài sản đảm bảo theo từng ID được chọn
+        List<Integer> taiSanTraIds = request.getDanhSachTaiSanTraId();
+        if (taiSanTraIds != null && !taiSanTraIds.isEmpty()) {
+            List<TaiSanDamBao> daTraList = new ArrayList<>();
+            for (TaiSanDamBao ts : phieuThue.getDanhSachTaiSan()) {
+                if (taiSanTraIds.contains(ts.getId())) {
+                    ts.setDaTra(true);
+                    taiSanDamBaoRepository.save(ts);
+                    daTraList.add(ts);
+                }
+            }
+            // Backward compat: ghi vào trường taiSanDaTra
+            if (!daTraList.isEmpty()) {
+                phieuTra.setDaTraTaiSan(true);
+                String taiSanDaTra = daTraList.stream()
+                        .map(TaiSanDamBao::getLoai)
+                        .collect(Collectors.joining(", "));
+                phieuTra.setTaiSanDaTra(taiSanDaTra);
+            }
+        } else if (phieuThue.getTaiSanDamBao() != null && !phieuThue.getTaiSanDamBao().isEmpty()) {
+            // Fallback cho dữ liệu cũ chưa migrate sang bảng mới
             phieuTra.setDaTraTaiSan(true);
             phieuTra.setTaiSanDaTra(phieuThue.getTaiSanDamBao());
         }
@@ -247,13 +289,28 @@ public class PhieuTraServiceImpl implements PhieuTraService {
         hoadon.setNgayTra(phieuTra.getNgayLap().format(FMT));
         hoadon.setTenNhanVien(phieuTra.getNhanVien().getUsername());
 
-        // Tài sản đảm bảo
-        hoadon.setTaiSanDamBao(phieuThue.getTaiSanDamBao());
-        hoadon.setMoTaTaiSan(phieuThue.getMoTaTaiSan());
+        // Tài sản đảm bảo - map from new list first, fallback to old fields
+        List<TaiSanDamBao> allTaiSan = phieuThue.getDanhSachTaiSan();
+        List<TaiSanDamBaoDTO> allTaiSanDTOs = allTaiSan.stream()
+                .map(ts -> new TaiSanDamBaoDTO(ts.getId(), ts.getLoai(), ts.getMoTa(), ts.isDaTra(), phieuThue.getId()))
+                .collect(Collectors.toList());
+        hoadon.setDanhSachTaiSan(allTaiSanDTOs);
+        // Tài sản đã trả trong phiếu này
+        List<TaiSanDamBaoDTO> daTraDTOs = allTaiSanDTOs.stream().filter(TaiSanDamBaoDTO::isDaTra).collect(Collectors.toList());
+        hoadon.setDanhSachTaiSanSeTra(daTraDTOs);
+
+        if (!allTaiSan.isEmpty()) {
+            hoadon.setTaiSanDamBao(allTaiSan.get(0).getLoai());
+            hoadon.setMoTaTaiSan(allTaiSan.get(0).getMoTa());
+        } else {
+            hoadon.setTaiSanDamBao(phieuThue.getTaiSanDamBao());
+            hoadon.setMoTaTaiSan(phieuThue.getMoTaTaiSan());
+        }
         hoadon.setDaTraTienCoc(phieuTra.isDaTraTienCoc());
         hoadon.setTienCocDaTra(phieuTra.getTienCocDaTra());
         hoadon.setDaTraTaiSan(phieuTra.isDaTraTaiSan());
         hoadon.setTaiSanDaTra(phieuTra.getTaiSanDaTra());
+
 
         List<HoaDonChiTietDTO> chiTietList = new ArrayList<>();
         float tongTienThue = 0, tongTienPhat = 0;

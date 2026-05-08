@@ -63,6 +63,16 @@ CREATE TABLE IF NOT EXISTS chi_tiet_thue (
     FOREIGN KEY (phieu_thue_id) REFERENCES phieu_thue(id)
 ) ENGINE=InnoDB;
 
+-- Bảng Tài Sản Đảm Bảo (tblTaiSanDamBao)
+CREATE TABLE IF NOT EXISTS tai_san_dam_bao (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    loai VARCHAR(100) NOT NULL,
+    mo_ta VARCHAR(500),
+    da_tra TINYINT(1) DEFAULT 0,
+    phieu_thue_id INT NOT NULL,
+    FOREIGN KEY (phieu_thue_id) REFERENCES phieu_thue(id)
+) ENGINE=InnoDB;
+
 -- Bảng Phiếu Trả (tblPhieuTra)
 CREATE TABLE IF NOT EXISTS phieu_tra (
     id INT AUTO_INCREMENT PRIMARY KEY,

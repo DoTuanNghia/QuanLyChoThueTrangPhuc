@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList, Loi, LoiPhatRequest, ChiTietThue } from '../../types';
+import { RootStackParamList, Loi, LoiPhatRequest, ChiTietThue, TaiSanDamBao } from '../../types';
 import { tratrangphucApi } from '../../api/tratrangphucApi';
 import { loiApi } from '../../api/loiApi';
 
@@ -37,6 +37,11 @@ export default function ChonTraScreen({ navigation, route }: Props) {
   const [currentItemIdx, setCurrentItemIdx] = useState<number>(-1);
   const [tempLoiSel, setTempLoiSel] = useState<Map<number, number>>(new Map());
 
+  // Tài sản đảm bảo
+  const danhSachTaiSan: TaiSanDamBao[] = (phieuThue as any).danhSachTaiSan || [];
+  const [selectedTaiSanIds, setSelectedTaiSanIds] = useState<number[]>([]);
+  const [taiSanModalVisible, setTaiSanModalVisible] = useState(false);
+
   useEffect(() => {
     Promise.all([loiApi.layTatCa(), tratrangphucApi.layPhieuThueChuaTra(khachHang.id)])
       .then(([lois]) => {
@@ -66,6 +71,10 @@ export default function ChonTraScreen({ navigation, route }: Props) {
           soLuongTra: String(c.soLuong ?? 1),
           danhSachLoi: [],
         })));
+
+        // Mặc định chọn tất cả tài sản chưa trả
+        const ts: TaiSanDamBao[] = (phieuThue as any).danhSachTaiSan || [];
+        setSelectedTaiSanIds(ts.filter(t => !t.daTra).map(t => t.id));
       })
       .catch((e) => Alert.alert('Lỗi', e.message))
       .finally(() => setLoading(false));
@@ -91,9 +100,22 @@ export default function ChonTraScreen({ navigation, route }: Props) {
     setModalVisible(false);
   };
 
+  const toggleTaiSan = (id: number) => {
+    setSelectedTaiSanIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
   const handleXemHoaDon = async () => {
     const selected = items.filter((i) => i.duocChon);
-    if (selected.length === 0) { Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 trang phục'); return; }
+    if (selected.length === 0) {
+      if (selectedTaiSanIds.length > 0) {
+        Alert.alert('Lỗi', 'Bạn chưa chọn trang phục trả', [{ text: 'OK' }]);
+      } else {
+        Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 trang phục để trả', [{ text: 'OK' }]);
+      }
+      return;
+    }
     try {
       setSubmitting(true);
       const request = {
@@ -104,6 +126,7 @@ export default function ChonTraScreen({ navigation, route }: Props) {
           soLuongTra: parseInt(i.soLuongTra) || 1,
           danhSachLoi: i.danhSachLoi.map(({ loiId, soLuong }) => ({ loiId, soLuong })),
         })),
+        danhSachTaiSanTraId: selectedTaiSanIds,
       };
       const hoaDon = await tratrangphucApi.preview(request);
       navigation.navigate('PreviewHoaDon', { request, hoaDon, nhanVien });
@@ -185,6 +208,69 @@ export default function ChonTraScreen({ navigation, route }: Props) {
             </View>
           </View>
 
+          {/* Tài sản đảm bảo section - CARD RIÊNG */}
+          {danhSachTaiSan.length > 0 && (
+            <View style={styles.card}>
+              <View style={styles.sectionHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={styles.taiSanCardIcon}>🔐</Text>
+                  <Text style={styles.sectionTitle}>Tài sản đảm bảo</Text>
+                </View>
+                <View style={[styles.selectedBadge, { backgroundColor: '#FFF3E0', borderWidth: 1, borderColor: '#FFB74D' }]}>
+                  <View style={[styles.selectedDot, { backgroundColor: '#E65100' }]} />
+                  <Text style={[styles.selectedBadgeText, { color: '#E65100' }]}>
+                    {selectedTaiSanIds.length}/{danhSachTaiSan.filter(t => !t.daTra).length} sẽ trả
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.taiSanCardSub}>Tick chọn tài sản sẽ trả lại trong lần này</Text>
+              <View style={styles.taiSanGrid}>
+                {danhSachTaiSan.map((ts) => {
+                  const isSelected = selectedTaiSanIds.includes(ts.id);
+                  const isDone = ts.daTra;
+                  return (
+                    <TouchableOpacity
+                      key={ts.id}
+                      style={[
+                        styles.taiSanChip,
+                        isSelected && !isDone && styles.taiSanChipSelected,
+                        isDone && styles.taiSanChipDone,
+                      ]}
+                      onPress={() => !isDone && toggleTaiSan(ts.id)}
+                      activeOpacity={isDone ? 1 : 0.7}
+                    >
+                      <View style={[
+                        styles.taiSanCheckbox,
+                        isSelected && !isDone && styles.taiSanCheckboxSelected,
+                        isDone && styles.taiSanCheckboxDone,
+                      ]}>
+                        <Text style={styles.taiSanCheckmark}>
+                          {isDone ? '✓' : isSelected ? '✓' : ''}
+                        </Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[
+                          styles.taiSanChipLabel,
+                          isDone && { color: '#9E9E9E', textDecorationLine: 'line-through' },
+                        ]}>
+                          {getTaiSanLabel(ts.loai)}
+                        </Text>
+                        {ts.moTa ? (
+                          <Text style={[styles.taiSanChipDesc, isDone && { color: '#BDBDBD' }]}>{ts.moTa}</Text>
+                        ) : null}
+                      </View>
+                      {isDone ? (
+                        <View style={styles.taiSanDoneBadge}>
+                          <Text style={styles.taiSanDoneBadgeText}>Đã trả</Text>
+                        </View>
+                      ) : null}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
           {/* Trang phục section */}
           <View style={styles.card}>
             <View style={styles.sectionHeader}>
@@ -196,28 +282,6 @@ export default function ChonTraScreen({ navigation, route }: Props) {
                 </Text>
               </View>
             </View>
-
-            {/* Thông tin tài sản đảm bảo */}
-            {(phieuThue as any).taiSanDamBao ? (
-              <View style={styles.taiSanInfoBox}>
-                <View style={styles.taiSanInfoHeader}>
-                  <Text style={styles.taiSanInfoIcon}>🔒</Text>
-                  <Text style={styles.taiSanInfoTitle}>Tài sản đảm bảo cần trả lại</Text>
-                </View>
-                <View style={styles.taiSanInfoBody}>
-                  <View style={styles.taiSanInfoBadge}>
-                    <Text style={styles.taiSanInfoBadgeText}>
-                      {getTaiSanLabel((phieuThue as any).taiSanDamBao)}
-                    </Text>
-                  </View>
-                  {(phieuThue as any).moTaTaiSan ? (
-                    <Text style={styles.taiSanInfoDesc}>
-                      {(phieuThue as any).moTaTaiSan}
-                    </Text>
-                  ) : null}
-                </View>
-              </View>
-            ) : null}
 
             {/* Tiền cọc */}
             {phieuThue.tienCoc > 0 && (
@@ -682,25 +746,35 @@ const styles = StyleSheet.create({
   },
   modalApplyText: { color: '#fff', fontWeight: '700', fontSize: 14 },
 
-  // Tài sản đảm bảo info
-  taiSanInfoBox: {
-    backgroundColor: '#FFF8E1', borderRadius: 12, padding: 14,
-    marginBottom: 14, borderWidth: 1, borderColor: '#FFE082',
+  // Tài sản đảm bảo - NEW card styles
+  taiSanCardIcon: { fontSize: 20 },
+  taiSanCardSub: { fontSize: 12, color: TEXT_LIGHT, marginBottom: 14, marginTop: -8 },
+  taiSanGrid: { gap: 10 },
+  taiSanChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    borderWidth: 1.5, borderColor: BORDER, borderRadius: 12,
+    padding: 14, backgroundColor: '#FAFBFC',
   },
-  taiSanInfoHeader: {
-    flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8,
+  taiSanChipSelected: {
+    borderColor: '#E65100', backgroundColor: '#FFF8F0',
+    shadowColor: '#E65100', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12, shadowRadius: 6, elevation: 2,
   },
-  taiSanInfoIcon: { fontSize: 16 },
-  taiSanInfoTitle: { fontSize: 13, fontWeight: '700', color: '#E65100' },
-  taiSanInfoBody: {
-    flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+  taiSanChipDone: { borderColor: '#E0E0E0', backgroundColor: '#FAFAFA', opacity: 0.7 },
+  taiSanCheckbox: {
+    width: 26, height: 26, borderRadius: 8, borderWidth: 2,
+    borderColor: '#D0D4DD', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  taiSanInfoBadge: {
-    backgroundColor: '#FFE0B2', paddingHorizontal: 10, paddingVertical: 5,
-    borderRadius: 8, borderWidth: 1, borderColor: '#FFB74D',
+  taiSanCheckboxSelected: { backgroundColor: '#E65100', borderColor: '#E65100' },
+  taiSanCheckboxDone: { backgroundColor: '#9E9E9E', borderColor: '#9E9E9E' },
+  taiSanCheckmark: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  taiSanChipLabel: { fontSize: 14, fontWeight: '700', color: TEXT_DARK },
+  taiSanChipDesc: { fontSize: 11, color: TEXT_LIGHT, marginTop: 2 },
+  taiSanDoneBadge: {
+    backgroundColor: '#F5F5F5', paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: 6, borderWidth: 1, borderColor: '#E0E0E0',
   },
-  taiSanInfoBadgeText: { fontSize: 13, fontWeight: '700', color: '#BF360C' },
-  taiSanInfoDesc: { fontSize: 12, color: '#795548' },
+  taiSanDoneBadgeText: { fontSize: 11, fontWeight: '600', color: '#9E9E9E' },
 
   // Tiền cọc info
   cocInfoBox: {
@@ -712,3 +786,4 @@ const styles = StyleSheet.create({
   cocInfoTitle: { fontSize: 14, fontWeight: '700', color: '#2E7D32' },
   cocInfoSub: { fontSize: 12, color: '#66BB6A', marginTop: 2 },
 });
+

@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -26,15 +27,21 @@ public class HoaDonTraDTO {
     
     private String tenNhanVien;
 
-    // Tài sản đảm bảo
-    private String taiSanDamBao;   // Loại tài sản: THE_SINH_VIEN, CCCD, BANG_LAI_XE...
-    private String moTaTaiSan;     // Mô tả chi tiết
+    // Tài sản đảm bảo - backward compat
+    private String taiSanDamBao;
+    private String moTaTaiSan;
 
-    // Trạng thái hoàn trả
+    // Trạng thái hoàn trả cũ
     private boolean daTraTienCoc;
     private float tienCocDaTra;
     private boolean daTraTaiSan;
     private String taiSanDaTra;
+
+    /** Tất cả tài sản đảm bảo của phiếu thuê */
+    private List<TaiSanDamBaoDTO> danhSachTaiSan = new ArrayList<>();
+
+    /** Danh sách tài sản đảm bảo sẽ được trả trong lần này (để hiển thị preview) */
+    private List<TaiSanDamBaoDTO> danhSachTaiSanSeTra = new ArrayList<>();
 
     
     private List<HoaDonChiTietDTO> danhSachChiTiet;

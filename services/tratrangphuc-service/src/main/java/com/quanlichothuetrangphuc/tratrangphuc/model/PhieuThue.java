@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -52,4 +53,8 @@ public class PhieuThue {
     @OneToMany(mappedBy = "phieuThue", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<ChiTietThue> chiTietThueList;
+
+    /** Danh sách tài sản đảm bảo (nhiều tài sản / phiếu thuê) */
+    @OneToMany(mappedBy = "phieuThue", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TaiSanDamBao> danhSachTaiSan = new ArrayList<>();
 }

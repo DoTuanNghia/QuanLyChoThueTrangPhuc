@@ -3,8 +3,10 @@ package com.quanlichothuetrangphuc.tratrangphuc.service.impl;
 import com.quanlichothuetrangphuc.tratrangphuc.dto.ChiTietThueDTO;
 import com.quanlichothuetrangphuc.tratrangphuc.dto.PhieuThueDTO;
 import com.quanlichothuetrangphuc.tratrangphuc.dto.PhieuThueListDTO;
+import com.quanlichothuetrangphuc.tratrangphuc.dto.TaiSanDamBaoDTO;
 import com.quanlichothuetrangphuc.tratrangphuc.model.ChiTietThue;
 import com.quanlichothuetrangphuc.tratrangphuc.model.PhieuThue;
+import com.quanlichothuetrangphuc.tratrangphuc.model.TaiSanDamBao;
 import com.quanlichothuetrangphuc.tratrangphuc.repository.PhieuThueRepository;
 import com.quanlichothuetrangphuc.tratrangphuc.service.PhieuThueService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,13 +45,25 @@ public class PhieuThueServiceImpl implements PhieuThueService {
             dto.setTenKhachHang(pt.getKhachHang().getTen());
             dto.setSoDienThoaiKH(pt.getKhachHang().getSoDienThoai());
             dto.setDiaChiKH(pt.getKhachHang().getDiaChi());
-            dto.setTaiSanDamBao(pt.getTaiSanDamBao());
-            dto.setMoTaTaiSan(pt.getMoTaTaiSan());
+            // Backward compat: set first asset as single
+            if (!pt.getDanhSachTaiSan().isEmpty()) {
+                dto.setTaiSanDamBao(pt.getDanhSachTaiSan().get(0).getLoai());
+                dto.setMoTaTaiSan(pt.getDanhSachTaiSan().get(0).getMoTa());
+            } else {
+                dto.setTaiSanDamBao(pt.getTaiSanDamBao());
+                dto.setMoTaTaiSan(pt.getMoTaTaiSan());
+            }
+            // Map danh sách tài sản đảm bảo
+            List<TaiSanDamBaoDTO> taiSanDTOs = pt.getDanhSachTaiSan().stream()
+                .map(ts -> new TaiSanDamBaoDTO(ts.getId(), ts.getLoai(), ts.getMoTa(), ts.isDaTra(), pt.getId()))
+                .collect(Collectors.toList());
+            dto.setDanhSachTaiSan(taiSanDTOs);
 
             List<ChiTietThueDTO> cttDtos = new ArrayList<>();
             for (ChiTietThue ctt : pt.getChiTietThueList()) {
-                if (ctt.getSoLuong() <= 0) continue;
-                
+                if (ctt.getSoLuong() <= 0)
+                    continue;
+
                 ChiTietThueDTO cttDto = new ChiTietThueDTO();
                 cttDto.setId(ctt.getId());
                 cttDto.setSoLuong(ctt.getSoLuong());
@@ -59,7 +74,8 @@ public class PhieuThueServiceImpl implements PhieuThueService {
                 cttDto.setTrangPhucId(ctt.getTrangPhuc().getId());
 
                 long soNgay = ChronoUnit.DAYS.between(pt.getNgayLap(), homNay);
-                if (soNgay < 1) soNgay = 1;
+                if (soNgay < 1)
+                    soNgay = 1;
                 cttDto.setSoNgayThue(soNgay);
                 cttDto.setTienThueDenNay(ctt.getTrangPhuc().getDonGia() * soNgay * ctt.getSoLuong());
                 cttDtos.add(cttDto);

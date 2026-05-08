@@ -38,14 +38,25 @@ export interface ChiTietThue {
   trangPhucId: number;
 }
 
+export interface TaiSanDamBao {
+  id: number;
+  loai: string;        // CCCD, THE_SINH_VIEN, BANG_LAI_XE, CHUNG_MINH_THU, KHAC
+  moTa?: string;
+  daTra: boolean;
+  phieuThueId: number;
+}
+
 export interface PhieuThue {
   id: number;
   tienCoc: number;
   tongTien: number;
   ngayLap: string;
   tenKhachHang: string;
-  taiSanDamBao?: string;   // THE_SINH_VIEN, CCCD, BANG_LAI_XE, KHAC
-  moTaTaiSan?: string;     // Mô tả chi tiết tài sản
+  // Old single-field backward compat
+  taiSanDamBao?: string;
+  moTaTaiSan?: string;
+  // New multi-asset list
+  danhSachTaiSan?: TaiSanDamBao[];
   chiTietThueList: ChiTietThue[];
   danhSachChuaTra?: any[];
 }
@@ -66,6 +77,8 @@ export interface PhieuTraRequest {
   phieuThueId: number;
   nhanVienId: number;
   danhSachTra: ChiTietTraRequest[];
+  /** Danh sách ID tài sản đảm bảo mà KH trả lại trong lần này */
+  danhSachTaiSanTraId: number[];
 }
 
 // Response DTOs
@@ -99,7 +112,7 @@ export interface HoaDonTra {
   tienCoc: number;
   ngayTra: string;
   tenNhanVien: string;
-  // Tài sản đảm bảo
+  // Tài sản đảm bảo - old single field backward compat
   taiSanDamBao?: string;
   moTaTaiSan?: string;
   // Trạng thái hoàn trả
@@ -107,6 +120,9 @@ export interface HoaDonTra {
   tienCocDaTra?: number;
   daTraTaiSan?: boolean;
   taiSanDaTra?: string;
+  // Multi-asset lists
+  danhSachTaiSan?: TaiSanDamBao[];
+  danhSachTaiSanSeTra?: TaiSanDamBao[];
   // Chi tiết
   danhSachChiTiet: HoaDonChiTiet[];
   tongTienThue: number;
