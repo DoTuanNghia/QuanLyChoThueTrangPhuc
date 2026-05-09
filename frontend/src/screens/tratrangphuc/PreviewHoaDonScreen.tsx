@@ -236,15 +236,9 @@ export default function PreviewHoaDonScreen({ navigation, route }: Props) {
               <View style={styles.sumDivider} />
 
               <View style={[styles.grandBox, { backgroundColor: khachTraThem ? '#FFF3F3' : '#E8F5E9' }]}>
-                <View>
-                  <Text style={styles.grandLabel}>
-                    {khachTraThem ? ' KHÁCH CẦN TRẢ THÊM' : 'TRẢ LẠI KHÁCH HÀNG'}
-                  </Text>
-                  {/* <Text style={styles.grandSub}>
-                    {khachTraThem ? 'Số tiền KH phải thanh toán thêm' : 'Số tiền hoàn lại cho KH'}
-                  </Text> */}
-                </View>
-                <Text></Text>
+                <Text style={styles.grandLabel}>
+                  {khachTraThem ? 'KHÁCH CẦN TRẢ THÊM' : 'TRẢ LẠI KHÁCH HÀNG'}
+                </Text>
                 <Text style={[styles.grandVal, { color: khachTraThem ? '#E53935' : '#00897B' }]}>
                   {fmtVND(Math.abs(soTienConLai))}
                 </Text>
@@ -470,12 +464,12 @@ const styles = StyleSheet.create({
 
   sumDivider: { height: 1, backgroundColor: '#F0F1F5', marginVertical: 6 },
   grandBox: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    borderRadius: 12, padding: 16, marginTop: 10,
+    flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+    borderRadius: 12, padding: 20, marginTop: 10, gap: 8
   },
-  grandLabel: { fontSize: 11, fontWeight: '800', color: '#1B2A4A', letterSpacing: 0.3 },
+  grandLabel: { fontSize: 13, fontWeight: '800', color: '#1B2A4A', letterSpacing: 0.3 },
   grandSub: { fontSize: 11, color: '#8892A6', marginTop: 3 },
-  grandVal: { fontSize: 26, fontWeight: '900' },
+  grandVal: { fontSize: 32, fontWeight: '900' },
 
   itemsList: { gap: 12 },
   itemBox: {
