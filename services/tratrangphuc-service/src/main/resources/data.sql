@@ -63,18 +63,18 @@ INSERT INTO trang_phuc (ten, don_gia, so_luong) VALUES
 ('Trang phục múa lân', 300000, 20);
 
 -- 6. Phiếu thuê
-INSERT INTO phieu_thue (tien_coc, tong_tien, ngay_lap, loai, status, tai_san_dam_bao, mo_ta_tai_san, nhan_vien_id, khach_hang_id) VALUES
-(500000, 430000, '2026-03-15', 'OFFLINE', 'DANG_THUE', 'THE_SINH_VIEN', 'Thẻ SV: B21DCCN001 - Nguyễn Thị Lan', 1, 3),
-(300000, 230000, '2026-03-20', 'OFFLINE', 'DANG_THUE', 'CCCD', 'CCCD: 036099001234 - Nguyễn Văn Hùng', 1, 4),
-(400000, 260000, '2026-03-22', 'ONLINE', 'DANG_THUE', 'THE_SINH_VIEN', 'Thẻ SV: B21DCCN045 - Phạm Thị Mai', 2, 5),
-(2000000, 2300000, '2026-03-23', 'OFFLINE', 'DANG_THUE', 'CCCD', 'CCCD: 025088005678 - Trần Hoàng Bách', 1, 7),
-(3000000, 5600000, '2026-03-21', 'ONLINE', 'DANG_THUE', 'BANG_LAI_XE', 'GPLX: B2-123456 - Lê Thị Diễm', 2, 8),
-(5000000, 7000000, '2026-03-19', 'OFFLINE', 'DANG_THUE', 'CCCD', 'CCCD: 079077009876 - Phan Văn Khánh', 1, 9),
-(2000000, 3100000, '2026-03-24', 'ONLINE', 'DANG_THUE', 'THE_SINH_VIEN', 'Thẻ SV: B22DCCN100 - Vũ Tú Anh', 2, 10),
-(5000000, 6000000, '2026-03-15', 'OFFLINE', 'DANG_THUE', 'CCCD', 'CCCD: 031066004321 - Hồ Quang Hiếu', 1, 11),
-(2000000, 6300000, '2026-03-25', 'ONLINE', 'DANG_THUE', 'BANG_LAI_XE', 'GPLX: C-654321 - Đặng Thu Thảo', 2, 12),
-(1000000, 1300000, '2026-03-25', 'OFFLINE', 'DANG_THUE', 'THE_SINH_VIEN', 'Thẻ SV: B20DCCN088 - Lê Thị Diễm', 1, 8),
-(3000000, 3600000, '2026-03-10', 'OFFLINE', 'DANG_THUE', 'CCCD', 'CCCD: 089055003210 - Bùi Tấn Trường', 1, 13);
+INSERT INTO phieu_thue (tien_coc, tong_tien, ngay_lap, loai, status, nhan_vien_id, khach_hang_id) VALUES
+(500000, 430000, '2026-03-15', 'OFFLINE', 'DANG_THUE', 1, 3),
+(300000, 230000, '2026-03-20', 'OFFLINE', 'DANG_THUE', 1, 4),
+(400000, 260000, '2026-03-22', 'ONLINE', 'DANG_THUE', 2, 5),
+(2000000, 2300000, '2026-03-23', 'OFFLINE', 'DANG_THUE', 1, 7),
+(3000000, 5600000, '2026-03-21', 'ONLINE', 'DANG_THUE', 2, 8),
+(5000000, 7000000, '2026-03-19', 'OFFLINE', 'DANG_THUE', 1, 9),
+(2000000, 3100000, '2026-03-24', 'ONLINE', 'DANG_THUE', 2, 10),
+(5000000, 6000000, '2026-03-15', 'OFFLINE', 'DANG_THUE', 1, 11),
+(2000000, 6300000, '2026-03-25', 'ONLINE', 'DANG_THUE', 2, 12),
+(1000000, 1300000, '2026-03-25', 'OFFLINE', 'DANG_THUE', 1, 8),
+(3000000, 3600000, '2026-03-10', 'OFFLINE', 'DANG_THUE', 1, 13);
 
 -- 7. Chi tiết thuê
 -- Phiếu 1
@@ -144,11 +144,11 @@ INSERT INTO chi_tiet_tra (so_luong, thanh_tien, trang_phuc_id, phieu_tra_id) VAL
 -- 10. Tài sản đảm bảo
 -- Thêm nhiều tài sản cho một số phiếu thuê để thể hiện mối quan hệ 1-Nhiều
 INSERT INTO tai_san_dam_bao (loai, mo_ta, da_tra, phieu_thue_id) VALUES
-('THE_SINH_VIEN', 'Thẻ SV: B21DCCN001 - Nguyễn Thị Lan', 1, 1),
-('CCCD', 'CCCD: 079123456789 - Nguyễn Thị Lan', 1, 1),
+('THE_SINH_VIEN', 'Thẻ SV: B21DCCN001 - Nguyễn Thị Lan', 0, 1),
+('CCCD', 'CCCD: 079123456789 - Nguyễn Thị Lan', 0, 1),
 
-('CCCD', 'CCCD: 036099001234 - Nguyễn Văn Hùng', 1, 2),
-('KHAC', 'Chìa khóa xe máy SH biển số 59X1-123.45', 1, 2),
+('CCCD', 'CCCD: 036099001234 - Nguyễn Văn Hùng', 0, 2),
+('KHAC', 'Chìa khóa xe máy SH biển số 59X1-123.45', 0, 2),
 
 ('THE_SINH_VIEN', 'Thẻ SV: B21DCCN045 - Phạm Thị Mai', 0, 3),
 ('BANG_LAI_XE', 'GPLX A1: 790123456', 0, 3),

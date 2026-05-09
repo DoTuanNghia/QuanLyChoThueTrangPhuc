@@ -21,9 +21,6 @@ public class PhieuThueDTO {
     private String soDienThoaiKH;
     private String diaChiKH;
     private int khachHangId;
-    // Keep for backward compat
-    private String taiSanDamBao;
-    private String moTaTaiSan;
     // Danh sách tài sản đảm bảo (có thể nhiều)
     private List<TaiSanDamBaoDTO> danhSachTaiSan = new ArrayList<>();
     private List<ChiTietThueDTO> danhSachChuaTra;

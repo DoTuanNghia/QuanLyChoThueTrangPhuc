@@ -45,14 +45,7 @@ public class PhieuThueServiceImpl implements PhieuThueService {
             dto.setTenKhachHang(pt.getKhachHang().getTen());
             dto.setSoDienThoaiKH(pt.getKhachHang().getSoDienThoai());
             dto.setDiaChiKH(pt.getKhachHang().getDiaChi());
-            // Backward compat: set first asset as single
-            if (!pt.getDanhSachTaiSan().isEmpty()) {
-                dto.setTaiSanDamBao(pt.getDanhSachTaiSan().get(0).getLoai());
-                dto.setMoTaTaiSan(pt.getDanhSachTaiSan().get(0).getMoTa());
-            } else {
-                dto.setTaiSanDamBao(pt.getTaiSanDamBao());
-                dto.setMoTaTaiSan(pt.getMoTaTaiSan());
-            }
+
             // Map danh sách tài sản đảm bảo
             List<TaiSanDamBaoDTO> taiSanDTOs = pt.getDanhSachTaiSan().stream()
                 .map(ts -> new TaiSanDamBaoDTO(ts.getId(), ts.getLoai(), ts.getMoTa(), ts.isDaTra(), pt.getId()))
@@ -103,8 +96,7 @@ public class PhieuThueServiceImpl implements PhieuThueService {
             dto.setStatus(pt.getStatus());
             dto.setTenKhachHang(pt.getKhachHang() != null ? pt.getKhachHang().getTen() : "");
             dto.setSoDienThoaiKH(pt.getKhachHang() != null ? pt.getKhachHang().getSoDienThoai() : "");
-            dto.setTaiSanDamBao(pt.getTaiSanDamBao());
-            dto.setMoTaTaiSan(pt.getMoTaTaiSan());
+
             result.add(dto);
         }
 

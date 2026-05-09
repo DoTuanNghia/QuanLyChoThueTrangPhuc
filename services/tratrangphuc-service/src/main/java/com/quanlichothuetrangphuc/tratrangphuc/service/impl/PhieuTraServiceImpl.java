@@ -56,14 +56,7 @@ public class PhieuTraServiceImpl implements PhieuTraService {
                 .collect(Collectors.toList());
         hoadon.setDanhSachTaiSan(allTaiSanDTOs);
 
-        // Backward compat
-        if (!allTaiSan.isEmpty()) {
-            hoadon.setTaiSanDamBao(allTaiSan.get(0).getLoai());
-            hoadon.setMoTaTaiSan(allTaiSan.get(0).getMoTa());
-        } else {
-            hoadon.setTaiSanDamBao(phieuThue.getTaiSanDamBao());
-            hoadon.setMoTaTaiSan(phieuThue.getMoTaTaiSan());
-        }
+
 
         // Tài sản sẽ trả trong lần này (theo selection của frontend)
         List<Integer> taiSanTraIds = request.getDanhSachTaiSanTraId();
@@ -174,10 +167,6 @@ public class PhieuTraServiceImpl implements PhieuTraService {
                         .collect(Collectors.joining(", "));
                 phieuTra.setTaiSanDaTra(taiSanDaTra);
             }
-        } else if (phieuThue.getTaiSanDamBao() != null && !phieuThue.getTaiSanDamBao().isEmpty()) {
-            // Fallback cho dữ liệu cũ chưa migrate sang bảng mới
-            phieuTra.setDaTraTaiSan(true);
-            phieuTra.setTaiSanDaTra(phieuThue.getTaiSanDamBao());
         }
 
         List<ChiTietTra> chiTietTraList = new ArrayList<>();
@@ -299,13 +288,7 @@ public class PhieuTraServiceImpl implements PhieuTraService {
         List<TaiSanDamBaoDTO> daTraDTOs = allTaiSanDTOs.stream().filter(TaiSanDamBaoDTO::isDaTra).collect(Collectors.toList());
         hoadon.setDanhSachTaiSanSeTra(daTraDTOs);
 
-        if (!allTaiSan.isEmpty()) {
-            hoadon.setTaiSanDamBao(allTaiSan.get(0).getLoai());
-            hoadon.setMoTaTaiSan(allTaiSan.get(0).getMoTa());
-        } else {
-            hoadon.setTaiSanDamBao(phieuThue.getTaiSanDamBao());
-            hoadon.setMoTaTaiSan(phieuThue.getMoTaTaiSan());
-        }
+
         hoadon.setDaTraTienCoc(phieuTra.isDaTraTienCoc());
         hoadon.setTienCocDaTra(phieuTra.getTienCocDaTra());
         hoadon.setDaTraTaiSan(phieuTra.isDaTraTaiSan());

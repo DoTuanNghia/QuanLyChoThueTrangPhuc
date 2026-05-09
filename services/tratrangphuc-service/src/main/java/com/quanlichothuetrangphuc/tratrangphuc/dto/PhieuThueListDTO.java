@@ -16,6 +16,4 @@ public class PhieuThueListDTO {
     private String status;
     private String tenKhachHang;
     private String soDienThoaiKH;
-    private String taiSanDamBao;
-    private String moTaTaiSan;
 }

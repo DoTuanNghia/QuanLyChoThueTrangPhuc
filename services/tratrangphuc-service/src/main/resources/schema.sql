@@ -44,8 +44,6 @@ CREATE TABLE IF NOT EXISTS phieu_thue (
     ngay_lap DATE NOT NULL,
     loai VARCHAR(255),
     status VARCHAR(255),
-    tai_san_dam_bao VARCHAR(255),
-    mo_ta_tai_san VARCHAR(500),
     nhan_vien_id INT,
     khach_hang_id INT,
     FOREIGN KEY (nhan_vien_id) REFERENCES nhan_vien(id),

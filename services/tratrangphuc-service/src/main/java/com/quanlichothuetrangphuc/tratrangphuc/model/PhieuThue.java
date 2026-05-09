@@ -36,12 +36,6 @@ public class PhieuThue {
     @Column(name = "status", length = 255)
     private String status;
 
-    @Column(name = "tai_san_dam_bao", length = 255)
-    private String taiSanDamBao;  // THE_SINH_VIEN, CCCD, BANG_LAI_XE, KHAC
-
-    @Column(name = "mo_ta_tai_san", length = 500)
-    private String moTaTaiSan;  // Mô tả chi tiết tài sản (số CCCD, mã thẻ SV...)
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nhan_vien_id")
     private NhanVien nhanVien;

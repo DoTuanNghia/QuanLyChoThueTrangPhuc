@@ -27,10 +27,6 @@ public class HoaDonTraDTO {
     
     private String tenNhanVien;
 
-    // Tài sản đảm bảo - backward compat
-    private String taiSanDamBao;
-    private String moTaTaiSan;
-
     // Trạng thái hoàn trả cũ
     private boolean daTraTienCoc;
     private float tienCocDaTra;
