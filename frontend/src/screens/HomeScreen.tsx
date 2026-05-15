@@ -101,9 +101,7 @@ export default function HomeScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F6FA' },
   header: { alignItems: 'center', paddingVertical: 36, paddingTop: 60 },
-  logoEmoji: { fontSize: 48, marginBottom: 12 },
   title: { fontSize: 32, fontWeight: '900', color: '#1B2A4A' },
-  subtitle: { fontSize: 15, color: '#8892A6', marginTop: 4, fontWeight: '500' },
   welcomeBadge: {
     marginTop: 14, backgroundColor: '#EEF0FB',
     paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,

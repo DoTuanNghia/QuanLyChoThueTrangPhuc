@@ -306,18 +306,7 @@ public class PhieuTraServiceImpl implements PhieuTraService {
 
             float tienThue = ctt.getThanhTien(); // Đã tính sẵn lúc lưu
 
-            // Lấy danh sách lỗi liên quan đến chi tiết trả này từ loihongphat-service
             List<ChiTietLoiViewDTO> loiViews = new ArrayList<>();
-            float tienPhatItem = 0;
-            try {
-                // Gọi sang LoiClient (có the LoiClient can api de lay "loi theo chiTietTraId")
-                // Do thiết kế LoiClient hiện tại chưa có lấy theo chiTietTraId, ta dùng mảng
-                // rỗng
-                // hoặc lấy tổng phạt chia đều nếu ko có endpoint.
-                // Ở đây do chưa setup endpoint getLoiTừChiTietTra, ta tạm fake phần phạt của
-                // item:
-            } catch (Exception e) {
-            }
 
             HoaDonChiTietDTO chiTietDTO = new HoaDonChiTietDTO();
             chiTietDTO.setTenTrangPhuc(trangPhuc.getTen());

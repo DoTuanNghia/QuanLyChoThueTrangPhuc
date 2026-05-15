@@ -5,9 +5,6 @@ export const loiApi = {
   layTatCa: () =>
     axiosInstance.get<Loi[]>('/api/loi').then((r) => r.data),
 
-  layTheoId: (id: number) =>
-    axiosInstance.get<Loi>(`/api/loi/${id}`).then((r) => r.data),
-
   them: (dto: Omit<Loi, 'id'>) =>
     axiosInstance.post<Loi>('/api/loi', dto).then((r) => r.data),
 

@@ -1,5 +1,5 @@
 import axiosInstance from './axiosInstance';
-import { KhachHang, NhanVien, PhieuThue, PhieuTraRequest, HoaDonTra, ThongKeDoanhThu, HoaDonThongKe } from '../types';
+import { KhachHang, PhieuThue, PhieuTraRequest, HoaDonTra, ThongKeDoanhThu, HoaDonThongKe } from '../types';
 
 export const tratrangphucApi = {
   timKiemKhachHang: (ten?: string) =>
@@ -11,9 +11,6 @@ export const tratrangphucApi = {
     axiosInstance
       .get<PhieuThue[]>(`/api/khach-hang/${khachHangId}/phieu-thue`)
       .then((r) => r.data),
-
-  layNhanVien: () =>
-    axiosInstance.get<NhanVien[]>('/api/nhan-vien').then((r) => r.data),
 
   preview: (request: PhieuTraRequest) =>
     axiosInstance.post<HoaDonTra>('/api/tra/preview', request).then((r) => r.data),

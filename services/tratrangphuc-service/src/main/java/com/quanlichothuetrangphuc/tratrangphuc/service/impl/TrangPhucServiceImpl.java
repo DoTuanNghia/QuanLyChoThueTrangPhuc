@@ -18,16 +18,4 @@ public class TrangPhucServiceImpl implements TrangPhucService {
     public List<TrangPhuc> layTatCa() {
         return trangPhucRepository.findAll();
     }
-
-    // @Override
-    // public List<TrangPhuc> timTheoTen(String ten) {
-    // return trangPhucRepository.findByTenContainingIgnoreCase(ten);
-    // }
-
-    // @Override
-    // public TrangPhuc layTheoId(int id) {
-    // return trangPhucRepository.findById(id)
-    // .orElseThrow(() -> new RuntimeException("Không tìm thấy trang phục id=" +
-    // id));
-    // }
 }

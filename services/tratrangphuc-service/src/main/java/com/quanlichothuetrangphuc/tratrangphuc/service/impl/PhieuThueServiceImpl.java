@@ -102,15 +102,4 @@ public class PhieuThueServiceImpl implements PhieuThueService {
 
         return result;
     }
-
-    @Override
-    public List<PhieuThue> layTatCa() {
-        return phieuThueRepository.findAll();
-    }
-
-    @Override
-    public PhieuThue layTheoId(int id) {
-        return phieuThueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Khong tim thay phieu thue id=" + id));
-    }
 }

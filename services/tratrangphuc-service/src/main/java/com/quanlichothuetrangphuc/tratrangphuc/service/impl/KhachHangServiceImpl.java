@@ -23,10 +23,4 @@ public class KhachHangServiceImpl implements KhachHangService {
     public List<KhachHang> timTatCa() {
         return khachHangRepository.findKhachHangCoDoThue();
     }
-
-    @Override
-    public KhachHang layTheoId(int id) {
-        return khachHangRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng id=" + id));
-    }
 }

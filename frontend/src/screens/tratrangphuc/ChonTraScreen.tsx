@@ -40,7 +40,6 @@ export default function ChonTraScreen({ navigation, route }: Props) {
   // Tài sản đảm bảo
   const danhSachTaiSan: TaiSanDamBao[] = (phieuThue as any).danhSachTaiSan || [];
   const [selectedTaiSanIds, setSelectedTaiSanIds] = useState<number[]>([]);
-  const [taiSanModalVisible, setTaiSanModalVisible] = useState(false);
 
   useEffect(() => {
     Promise.all([loiApi.layTatCa(), tratrangphucApi.layPhieuThueChuaTra(khachHang.id)])
@@ -603,9 +602,7 @@ const styles = StyleSheet.create({
     borderColor: BORDER, gap: 7,
   },
   nvChipActive: { backgroundColor: '#EEF0FB', borderColor: ACCENT },
-  nvDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#D0D4DD' },
   nvDotActive: { backgroundColor: ACCENT },
-  nvText: { color: TEXT_LIGHT, fontSize: 13, fontWeight: '500' },
   nvTextActive: { color: ACCENT, fontWeight: '700' },
 
   sectionHeader: {
