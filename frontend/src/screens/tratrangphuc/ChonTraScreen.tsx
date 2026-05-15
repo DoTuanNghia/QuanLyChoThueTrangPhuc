@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, Alert,
   ActivityIndicator, ScrollView, Modal, TextInput, Platform
@@ -109,29 +109,12 @@ export default function ChonTraScreen({ navigation, route }: Props) {
     const danhSachTaiSan: TaiSanDamBao[] = (phieuThue as any).danhSachTaiSan || [];
     const chuaTraTaiSan = danhSachTaiSan.filter(t => !t.daTra);
 
-    if (chuaTraTaiSan.length > 0 && selectedTaiSanIds.length === 0) {
-      if (Platform.OS === 'web') {
-        window.alert('Vui lòng chọn ít nhất 1 tài sản đảm bảo để trả');
-      } else {
-        Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 tài sản đảm bảo để trả', [{ text: 'OK' }]);
-      }
-      return;
-    }
-
     const selected = items.filter((i) => i.duocChon);
     if (selected.length === 0) {
-      if (selectedTaiSanIds.length > 0) {
-        if (Platform.OS === 'web') {
-          window.alert('Bạn chưa chọn trang phục trả');
-        } else {
-          Alert.alert('Lỗi', 'Bạn chưa chọn trang phục trả', [{ text: 'OK' }]);
-        }
+      if (Platform.OS === 'web') {
+        window.alert('Vui lòng chọn ít nhất 1 trang phục để trả');
       } else {
-        if (Platform.OS === 'web') {
-          window.alert('Vui lòng chọn ít nhất 1 trang phục để trả');
-        } else {
-          Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 trang phục để trả', [{ text: 'OK' }]);
-        }
+        Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 trang phục để trả', [{ text: 'OK' }]);
       }
       return;
     }
@@ -153,6 +136,40 @@ export default function ChonTraScreen({ navigation, route }: Props) {
       }
     }
 
+    // Kiểm tra xem lần trả này có phải là lần trả cuối không
+    // (tổng số lượng đang trả = tổng số lượng còn nợ trên tất cả các mặt hàng)
+    const tongSoLuongConNo = items.reduce((sum, i) => sum + i.chiTietThue.soLuong, 0);
+    const tongSoLuongDangTra = selected.reduce((sum, i) => sum + parseInt(i.soLuongTra, 10), 0);
+    const isLanTraCuoi = tongSoLuongDangTra >= tongSoLuongConNo;
+
+    // Nếu là lần trả cuối mà còn tài sản đảm bảo chưa chọn trả → cảnh báo (không bắt buộc)
+    if (isLanTraCuoi && chuaTraTaiSan.length > 0 && selectedTaiSanIds.length < chuaTraTaiSan.length) {
+      const soTaiSanChuaChon = chuaTraTaiSan.length - selectedTaiSanIds.length;
+      const msg = `Đây là lần trả cuối nhưng còn ${soTaiSanChuaChon} tài sản đảm bảo chưa được chọn trả lại cho khách.\n\nBạn có muốn tiếp tục mà không trả tài sản này không?`;
+      if (Platform.OS === 'web') {
+        if (!window.confirm(msg)) return;
+        await _doPreviewAndNavigate(selected);
+      } else {
+        // Trên native, Alert.alert là callback-based (không block async được)
+        // nên dùng onPress callback để gọi hàm navigate khi user đồng ý
+        Alert.alert(
+          '⚠️ Còn tài sản đảm bảo chưa trả',
+          msg,
+          [
+            { text: 'Quay lại', style: 'cancel' },
+            { text: 'Tiếp tục', style: 'destructive', onPress: () => _doPreviewAndNavigate(selected) },
+          ]
+        );
+      }
+      return; // Dung tai day; viec navigate do web hoac callback native dam nhan
+    }
+
+    // Tra mot phan hoac da chon du tai san -> tien hanh binh thuong
+    // Tai san dam bao la tuy chon trong moi lan tra, khong bat buoc
+    await _doPreviewAndNavigate(selected);
+  };
+
+  const _doPreviewAndNavigate = async (selected: ItemState[]) => {
     try {
       setSubmitting(true);
       const request = {
@@ -260,7 +277,7 @@ export default function ChonTraScreen({ navigation, route }: Props) {
                   </Text>
                 </View>
               </View>
-              <Text style={styles.taiSanCardSub}>Tick chọn tài sản sẽ trả lại trong lần này</Text>
+              <Text style={styles.taiSanCardSub}>Tùy chọn: chọn tài sản sẽ trả trong lần này (không bắt buộc khi trả một phần)</Text>
               <View style={styles.taiSanGrid}>
                 {danhSachTaiSan.map((ts) => {
                   const isSelected = selectedTaiSanIds.includes(ts.id);
@@ -821,4 +838,5 @@ const styles = StyleSheet.create({
   cocInfoTitle: { fontSize: 14, fontWeight: '700', color: '#2E7D32' },
   cocInfoSub: { fontSize: 12, color: '#66BB6A', marginTop: 2 },
 });
+
 
