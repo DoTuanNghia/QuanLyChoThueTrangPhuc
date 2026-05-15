@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, Alert,
   ActivityIndicator, ScrollView, Modal, TextInput, Platform
@@ -142,26 +142,27 @@ export default function ChonTraScreen({ navigation, route }: Props) {
     const tongSoLuongDangTra = selected.reduce((sum, i) => sum + parseInt(i.soLuongTra, 10), 0);
     const isLanTraCuoi = tongSoLuongDangTra >= tongSoLuongConNo;
 
-    // Nếu là lần trả cuối mà còn tài sản đảm bảo chưa chọn trả → cảnh báo (không bắt buộc)
+    // Ngăn chặn: Trả một phần trang phục nhưng lại chọn trả TOÀN BỘ tài sản đảm bảo
+    if (!isLanTraCuoi && chuaTraTaiSan.length > 0 && selectedTaiSanIds.length === chuaTraTaiSan.length) {
+      const msg = 'Bạn chưa trả hết trang phục nên không thể trả toàn bộ tài sản đảm bảo.\nVui lòng bỏ chọn ít nhất 1 tài sản đảm bảo!';
+      if (Platform.OS === 'web') {
+        window.alert(msg);
+      } else {
+        Alert.alert('Lỗi', msg, [{ text: 'OK' }]);
+      }
+      return;
+    }
+
+    // Nếu là lần trả cuối mà còn tài sản đảm bảo chưa chọn trả → BẮT BUỘC phải trả hết
     if (isLanTraCuoi && chuaTraTaiSan.length > 0 && selectedTaiSanIds.length < chuaTraTaiSan.length) {
       const soTaiSanChuaChon = chuaTraTaiSan.length - selectedTaiSanIds.length;
-      const msg = `Đây là lần trả cuối nhưng còn ${soTaiSanChuaChon} tài sản đảm bảo chưa được chọn trả lại cho khách.\n\nBạn có muốn tiếp tục mà không trả tài sản này không?`;
+      const msg = `Đây là lần trả cuối. Vui lòng chọn trả nốt ${soTaiSanChuaChon} tài sản đảm bảo còn lại cho khách hàng!`;
       if (Platform.OS === 'web') {
-        if (!window.confirm(msg)) return;
-        await _doPreviewAndNavigate(selected);
+        window.alert(msg);
       } else {
-        // Trên native, Alert.alert là callback-based (không block async được)
-        // nên dùng onPress callback để gọi hàm navigate khi user đồng ý
-        Alert.alert(
-          '⚠️ Còn tài sản đảm bảo chưa trả',
-          msg,
-          [
-            { text: 'Quay lại', style: 'cancel' },
-            { text: 'Tiếp tục', style: 'destructive', onPress: () => _doPreviewAndNavigate(selected) },
-          ]
-        );
+        Alert.alert('Lỗi', msg, [{ text: 'OK' }]);
       }
-      return; // Dung tai day; viec navigate do web hoac callback native dam nhan
+      return;
     }
 
     // Tra mot phan hoac da chon du tai san -> tien hanh binh thuong
